@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "build"   # for React (CRA). Change to "dist" if using Vue/Angular.
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
