@@ -7,7 +7,7 @@ import ImageCropModal from './ImageCropModal';
 
 interface ComicPage {
   id: string;
-  layout: 'single' | 'double' | 'triple' | 'quad';
+  layout: 'single' | 'double' | 'triple';
   panels: ComicPanel[];
 }
 
@@ -27,27 +27,27 @@ const COMIC_LAYOUTS: ComicPage[] = [
     panels: [
       { id: 'title', type: 'text', content: '', placeholder: 'Add a title here', style: 'title' },
       { id: 'subtitle', type: 'text', content: '', placeholder: 'Add a subtitle', style: 'subtitle' },
-      { id: 'date', type: 'date', content: '2\nMar', placeholder: '2\nMar', style: 'date' },
+      { id: 'date', type: 'date', content: '1\nSep', placeholder: '1\nSep', style: 'date' },
       { id: 'image1', type: 'image', content: '', placeholder: 'Click to add image', style: 'main-image' },
       { id: 'caption1', type: 'text', content: '', placeholder: 'Add a caption', style: 'caption' },
-      { id: 'dedication', type: 'text', content: '', placeholder: 'Write your dedication here', style: 'dedication' }
+      { id: 'image2', type: 'image', content: '', placeholder: 'Click to add image', style: 'dedication' }
     ]
   },
   {
     id: 'page2',
-    layout: 'double',
+    layout: 'single',
     panels: [
-      { id: 'image2', type: 'image', content: '', placeholder: 'Click to add image', style: 'full-page' },
-      { id: 'image3', type: 'image', content: '', placeholder: 'Click to add image', style: 'half-page' },
-      { id: 'caption2', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' },
-      { id: 'image4', type: 'image', content: '', placeholder: 'Click to add image', style: 'half-page' }
+      { id: 'image3', type: 'image', content: '', placeholder: 'Click to add image', style: 'full-page' },
+      { id: 'caption2', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' }
     ]
   },
   {
     id: 'page3',
-    layout: 'single',
+    layout: 'triple',
     panels: [
-      { id: 'image5', type: 'image', content: '', placeholder: 'Click to add image', style: 'full-page' },
+      { id: 'image4', type: 'image', content: '', placeholder: 'Click to add image', style: 'top-left' },
+      { id: 'image5', type: 'image', content: '', placeholder: 'Click to add image', style: 'top-right' },
+      { id: 'image6', type: 'image', content: '', placeholder: 'Click to add image', style: 'bottom-full' },
       { id: 'caption3', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' }
     ]
   },
@@ -55,19 +55,61 @@ const COMIC_LAYOUTS: ComicPage[] = [
     id: 'page4',
     layout: 'double',
     panels: [
-      { id: 'image6', type: 'image', content: '', placeholder: 'Click to add image', style: 'top-half' },
-      { id: 'image7', type: 'image', content: '', placeholder: 'Click to add image', style: 'top-half' },
-      { id: 'image8', type: 'image', content: '', placeholder: 'Click to add image', style: 'bottom-full' },
-      { id: 'caption4', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' }
+      { id: 'image7', type: 'image', content: '', placeholder: 'Click to add image', style: 'left-with-caption' },
+      { id: 'caption4', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' },
+      { id: 'image8', type: 'image', content: '', placeholder: 'Click to add image', style: 'right-full' }
     ]
   },
   {
     id: 'page5',
+    layout: 'single',
+    panels: [
+      { id: 'image9', type: 'image', content: '', placeholder: 'Click to add image', style: 'full-page' },
+      { id: 'caption5', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' }
+    ]
+  },
+  {
+    id: 'page6',
     layout: 'double',
     panels: [
-      { id: 'image9', type: 'image', content: '', placeholder: 'Click to add image', style: 'half-page' },
-      { id: 'caption5', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' },
-      { id: 'image10', type: 'image', content: '', placeholder: 'Click to add image', style: 'half-page' }
+      { id: 'image10', type: 'image', content: '', placeholder: 'Click to add image', style: 'left-with-caption' },
+      { id: 'caption6', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' },
+      { id: 'image11', type: 'image', content: '', placeholder: 'Click to add image', style: 'right-full' }
+    ]
+  },
+  {
+    id: 'page7',
+    layout: 'triple',
+    panels: [
+      { id: 'image12', type: 'image', content: '', placeholder: 'Click to add image', style: 'top-full' },
+      { id: 'caption7', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' },
+      { id: 'image13', type: 'image', content: '', placeholder: 'Click to add image', style: 'bottom-left' },
+      { id: 'image14', type: 'image', content: '', placeholder: 'Click to add image', style: 'bottom-right' }
+    ]
+  },
+  {
+    id: 'page8',
+    layout: 'single',
+    panels: [
+      { id: 'image15', type: 'image', content: '', placeholder: 'Click to add image', style: 'full-page' },
+      { id: 'caption8', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' }
+    ]
+  },
+  {
+    id: 'page9',
+    layout: 'double',
+    panels: [
+      { id: 'image16', type: 'image', content: '', placeholder: 'Click to add image', style: 'left-with-caption' },
+      { id: 'caption9', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' },
+      { id: 'image17', type: 'image', content: '', placeholder: 'Click to add image', style: 'right-full' }
+    ]
+  },
+  {
+    id: 'page10',
+    layout: 'single',
+    panels: [
+      { id: 'image18', type: 'image', content: '', placeholder: 'Click to add image', style: 'full-page' },
+      { id: 'caption10', type: 'text', content: '', placeholder: 'Add a caption here', style: 'caption' }
     ]
   }
 ];
@@ -154,10 +196,10 @@ export default function ComicTemplate() {
           const titlePanel = restoredPages[0].panels.find(p => p.id === 'title');
           if (titlePanel) titlePanel.content = data.title;
         }
-        
+
         if (data.description) {
-          const dedicationPanel = restoredPages[0].panels.find(p => p.id === 'dedication');
-          if (dedicationPanel) dedicationPanel.content = data.description;
+          const subtitlePanel = restoredPages[0].panels.find(p => p.id === 'subtitle');
+          if (subtitlePanel) subtitlePanel.content = data.description;
         }
         
         setPages(restoredPages);
@@ -237,7 +279,7 @@ export default function ComicTemplate() {
             });
           } else if (panel.id === 'title' && panel.content) {
             title = panel.content;
-          } else if (panel.id === 'dedication' && panel.content) {
+          } else if (panel.id === 'subtitle' && panel.content) {
             description = panel.content;
           }
         }
@@ -313,7 +355,7 @@ export default function ComicTemplate() {
 
       const submissionData = {
         title: updatedPages[0].panels.find(p => p.id === 'title')?.content || 'Comic Submission',
-        description: updatedPages[0].panels.find(p => p.id === 'dedication')?.content || '',
+        description: updatedPages[0].panels.find(p => p.id === 'subtitle')?.content || '',
         date: new Date().toISOString().split('T')[0],
         images: images,
         status: 'submitted' as const
@@ -377,21 +419,21 @@ export default function ComicTemplate() {
 
   if (showWelcome) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 text-white p-4 md:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 text-white p-4 md:p-6 overflow-auto">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">
+          <h1 className="text-lg md:text-xl font-bold mb-4">
             Welcome to your comic template! Please follow the guidelines below so we has everything he needs to make your comic look great! If you have any questions just reply to my email and I'll get back to you
           </h1>
-          
-          {/* <div className="mb-8">
-            <p className="text-lg md:text-xl mb-4">
+
+          {/* <div className="mb-4">
+            <p className="text-sm md:text-base mb-2">
               Before you start, <span className="underline cursor-pointer text-red-400">watch the 3 minute tutorial video</span> and read the guidelines below:
             </p>
           </div> */}
 
-          <div className="bg-white/10 rounded-lg p-4 md:p-6 mb-8">
-            <h2 className="text-xl md:text-2xl font-bold mb-6">Guidelines</h2>
-            <ol className="space-y-4 text-sm md:text-lg">
+          <div className="bg-white/10 rounded-lg p-3 md:p-4 mb-4">
+            <h2 className="text-base md:text-lg font-bold mb-3">Guidelines</h2>
+            <ol className="space-y-2 text-xs md:text-sm">
               <li>
                 <span className="font-semibold">1.</span> Look through the template to <span className="font-semibold">familiarise yourself with the format</span> and plan what images and text go where. Think about the shape of the image box and the shape of the photo you want (landscape shape with a landscape image).
               </li>
@@ -418,7 +460,7 @@ export default function ComicTemplate() {
 
           <button
             onClick={() => setShowWelcome(false)}
-            className="bg-yellow-400 text-black px-6 md:px-8 py-3 rounded-lg font-semibold text-base md:text-lg hover:bg-yellow-300 transition-colors"
+            className="bg-yellow-400 text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-semibold text-sm md:text-base hover:bg-yellow-300 transition-colors"
           >
             Start uploading!
           </button>
@@ -456,7 +498,7 @@ export default function ComicTemplate() {
         </div>
 
         {/* Comic Pages */}
-        <div className="flex justify-center space-x-2 md:space-x-8 px-16 md:px-0">
+        <div className="flex justify-center space-x-2 md:space-x-8 px-16 md:px-0 py-12">
           {currentPageData.layout === 'single' ? (
             <ComicPageRenderer
               page={currentPageData}
@@ -465,6 +507,16 @@ export default function ComicTemplate() {
               onImageClick={handleImageClick}
               onTextChange={handleTextChange}
               onDateChange={handleDateChange}
+            />
+          ) : currentPageData.layout === 'triple' ? (
+            <ComicPageRenderer
+              page={currentPageData}
+              pageIndex={currentPage}
+              pages={pages}
+              onImageClick={handleImageClick}
+              onTextChange={handleTextChange}
+              onDateChange={handleDateChange}
+              layout="triple"
             />
           ) : (
             <>
@@ -531,14 +583,15 @@ interface ComicPageRendererProps {
   onDateChange: (pageIndex: number, panelId: string, day: string, month: string) => void;
   isLeftPage?: boolean;
   isRightPage?: boolean;
+  layout?: string;
 }
 
-function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange, onDateChange, isLeftPage, isRightPage }: ComicPageRendererProps) {
+function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange, onDateChange, isLeftPage, isRightPage, layout }: ComicPageRendererProps) {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const getPagePanels = () => {
-    if (page.layout === 'single') return page.panels;
-    
+    if (page.layout === 'single' || page.layout === 'triple') return page.panels;
+
     const midPoint = Math.ceil(page.panels.length / 2);
     if (isLeftPage) {
       return page.panels.slice(0, midPoint);
@@ -550,8 +603,12 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
   const panels = getPagePanels();
 
   return (
-    <div className="bg-white border-4 md:border-8 border-black rounded-lg shadow-2xl w-full max-w-sm md:max-w-md mx-auto" style={{ aspectRatio: '2/3', minHeight: '400px' }}>
-      <div className="h-full p-2 md:p-4 relative">
+    <div className="relative">
+      {/* Print Registration Marks */}
+     
+      {/* Comic Page */}
+      <div className={`bg-white border-8 md:border-12 border-black shadow-2xl w-full max-w-sm md:max-w-md mx-auto ${layout === 'triple' ? 'max-w-4xl' : ''}`} style={{ aspectRatio: layout === 'triple' ? '4/3' : '2/3', minHeight: '400px' }}>
+        <div className="h-full p-2 md:p-4 relative">
         {/* Cover Page (Page 1) */}
         {pageIndex === 0 && isLeftPage && (
           <>
@@ -635,7 +692,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                 <img
                   src={pages[pageIndex].panels.find(p => p.id === 'image1')?.content}
                   alt="Uploaded"
-                  className="w-full h-full object-cover rounded"
+                  className="w-full h-full object-cover rounded comic-image"
                   onError={(e) => {
                     console.log('Image failed to load:', e.currentTarget.src);
                   }}
@@ -659,20 +716,10 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
           </>
         )}
         
-        {/* Dedication Page (Page 1 Right) */}
+        {/* Image 2 Page (Page 1 Right) */}
         {pageIndex === 0 && isRightPage && (
-          <textarea
-            placeholder="Write your dedication here"
-            value={page.panels.find(p => p.id === 'dedication')?.content || ''}
-            className="w-full h-full bg-yellow-400 text-black p-2 md:p-4 rounded resize-none border-0 focus:ring-2 focus:ring-yellow-500 text-xs md:text-sm"
-            onChange={(e) => onTextChange(pageIndex, 'dedication', e.target.value)}
-          />
-        )}
-        
-        {/* Page 2 Left - Full page image */}
-        {pageIndex === 1 && isLeftPage && (
           <div className="w-full h-full bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
-            <div 
+            <div
               className="absolute inset-0 cursor-pointer"
               onClick={() => onImageClick(pageIndex, 'image2')}
             />
@@ -680,7 +727,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               <img
                 src={page.panels.find(p => p.id === 'image2')?.content}
                 alt="Uploaded"
-                className="w-full h-full object-cover rounded"
+                className="w-full h-full object-cover rounded comic-image"
               />
             ) : (
               <div className="text-gray-500 text-center">
@@ -691,11 +738,11 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
           </div>
         )}
         
-        {/* Page 2 Right - Two images with caption */}
-        {pageIndex === 1 && isRightPage && (
-          <div className="h-full flex flex-col space-y-4">
-            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
-              <div 
+        {/* Page 2 - Single large image with caption */}
+        {pageIndex === 1 && (
+          <div className="h-full flex flex-col">
+            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-4">
+              <div
                 className="absolute inset-0 cursor-pointer"
                 onClick={() => onImageClick(pageIndex, 'image3')}
               />
@@ -703,12 +750,12 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                 <img
                   src={page.panels.find(p => p.id === 'image3')?.content}
                   alt="Uploaded"
-                  className="w-full h-full object-cover rounded"
+                  className="w-full h-full object-cover rounded comic-image"
                 />
               ) : (
                 <div className="text-gray-500 text-center">
-                  <Upload className="w-8 h-8 mx-auto mb-1" />
-                  <p className="text-sm">Click to add image</p>
+                  <Upload className="w-12 h-12 mx-auto mb-2" />
+                  <p>Click to add image</p>
                 </div>
               )}
             </div>
@@ -719,120 +766,100 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               className="bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
               onChange={(e) => onTextChange(pageIndex, 'caption2', e.target.value)}
             />
-            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
-              <div 
-                className="absolute inset-0 cursor-pointer"
-                onClick={() => onImageClick(pageIndex, 'image4')}
-              />
-              {page.panels.find(p => p.id === 'image4')?.content ? (
-                <img
-                  src={page.panels.find(p => p.id === 'image4')?.content}
-                  alt="Uploaded"
-                  className="w-full h-full object-cover rounded"
+          </div>
+        )}
+
+        {/* Page 3 - Triple layout: two images on top, one full-width on bottom with caption */}
+        {pageIndex === 2 && layout === 'triple' && (
+          <div className="h-full flex flex-col space-y-2">
+            <div className="flex space-x-2 h-1/2">
+              <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
+                <div
+                  className="absolute inset-0 cursor-pointer"
+                  onClick={() => onImageClick(pageIndex, 'image4')}
                 />
-              ) : (
-                <div className="text-gray-500 text-center">
-                  <Upload className="w-8 h-8 mx-auto mb-1" />
-                  <p className="text-sm">Click to add image</p>
-                </div>
-              )}
+                {page.panels.find(p => p.id === 'image4')?.content ? (
+                  <img
+                    src={page.panels.find(p => p.id === 'image4')?.content}
+                    alt="Uploaded"
+                    className="w-full h-full object-cover rounded comic-image"
+                  />
+                ) : (
+                  <div className="text-gray-500 text-center">
+                    <Upload className="w-8 h-8 mx-auto mb-1" />
+                    <p className="text-sm">Image 4</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
+                <div
+                  className="absolute inset-0 cursor-pointer"
+                  onClick={() => onImageClick(pageIndex, 'image5')}
+                />
+                {page.panels.find(p => p.id === 'image5')?.content ? (
+                  <img
+                    src={page.panels.find(p => p.id === 'image5')?.content}
+                    alt="Uploaded"
+                    className="w-full h-full object-cover rounded comic-image"
+                  />
+                ) : (
+                  <div className="text-gray-500 text-center">
+                    <Upload className="w-8 h-8 mx-auto mb-1" />
+                    <p className="text-sm">Image 5</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-2">
+                <div
+                  className="absolute inset-0 cursor-pointer"
+                  onClick={() => onImageClick(pageIndex, 'image6')}
+                />
+                {page.panels.find(p => p.id === 'image6')?.content ? (
+                  <img
+                    src={page.panels.find(p => p.id === 'image6')?.content}
+                    alt="Uploaded"
+                    className="w-full h-full object-cover rounded comic-image"
+                  />
+                ) : (
+                  <div className="text-gray-500 text-center">
+                    <Upload className="w-10 h-10 mx-auto mb-1" />
+                    <p>Image 6</p>
+                  </div>
+                )}
+              </div>
+              <input
+                type="text"
+                placeholder="Add a caption here"
+                value={page.panels.find(p => p.id === 'caption3')?.content || ''}
+                className="bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500 text-sm"
+                onChange={(e) => onTextChange(pageIndex, 'caption3', e.target.value)}
+              />
             </div>
           </div>
         )}
-        
-        {/* Page 3 - Single large image with caption */}
-        {pageIndex === 2 && (
+
+        {/* Page 4 Left - Image 7 with caption */}
+        {pageIndex === 3 && isLeftPage && (
           <div className="h-full flex flex-col">
-            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-4">
-              <div 
+            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-2">
+              <div
                 className="absolute inset-0 cursor-pointer"
-                onClick={() => onImageClick(pageIndex, 'image5')}
+                onClick={() => onImageClick(pageIndex, 'image7')}
               />
-              {page.panels.find(p => p.id === 'image5')?.content ? (
+              {page.panels.find(p => p.id === 'image7')?.content ? (
                 <img
-                  src={page.panels.find(p => p.id === 'image5')?.content}
+                  src={page.panels.find(p => p.id === 'image7')?.content}
                   alt="Uploaded"
-                  className="w-full h-full object-cover rounded"
+                  className="w-full h-full object-cover rounded comic-image"
                 />
               ) : (
                 <div className="text-gray-500 text-center">
                   <Upload className="w-12 h-12 mx-auto mb-2" />
-                  <p>Click to add image</p>
+                  <p>Image 7</p>
                 </div>
               )}
-            </div>
-            <input
-              type="text"
-              placeholder="Add a caption here"
-              value={page.panels.find(p => p.id === 'caption3')?.content || ''}
-              className="bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
-              onChange={(e) => onTextChange(pageIndex, 'caption3', e.target.value)}
-            />
-          </div>
-        )}
-        
-        {/* Page 4 Left - Single image */}
-        {pageIndex === 3 && isLeftPage && (
-          <div className="w-full h-full bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
-            <div 
-              className="absolute inset-0 cursor-pointer"
-              onClick={() => onImageClick(pageIndex, 'image6')}
-            />
-            {page.panels.find(p => p.id === 'image6')?.content ? (
-              <img
-                src={page.panels.find(p => p.id === 'image6')?.content}
-                alt="Uploaded"
-                className="w-full h-full object-cover rounded"
-              />
-            ) : (
-              <div className="text-gray-500 text-center">
-                <Upload className="w-12 h-12 mx-auto mb-2" />
-                <p>Click to add image</p>
-              </div>
-            )}
-          </div>
-        )}
-        
-        {/* Page 4 Right - Two top images, one bottom image, caption */}
-        {pageIndex === 3 && isRightPage && (
-          <div className="h-full flex flex-col space-y-4">
-            <div className="flex space-x-4 flex-1">
-              <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
-                <div 
-                  className="absolute inset-0 cursor-pointer"
-                  onClick={() => onImageClick(pageIndex, 'image7')}
-                />
-                {page.panels.find(p => p.id === 'image7')?.content ? (
-                  <img
-                    src={page.panels.find(p => p.id === 'image7')?.content}
-                    alt="Uploaded"
-                    className="w-full h-full object-cover rounded"
-                  />
-                ) : (
-                  <div className="text-gray-500 text-center">
-                    <Upload className="w-6 h-6 mx-auto mb-1" />
-                    <p className="text-xs">Add image</p>
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
-                <div 
-                  className="absolute inset-0 cursor-pointer"
-                  onClick={() => onImageClick(pageIndex, 'image8')}
-                />
-                {page.panels.find(p => p.id === 'image8')?.content ? (
-                  <img
-                    src={page.panels.find(p => p.id === 'image8')?.content}
-                    alt="Uploaded"
-                    className="w-full h-full object-cover rounded"
-                  />
-                ) : (
-                  <div className="text-gray-500 text-center">
-                    <Upload className="w-6 h-6 mx-auto mb-1" />
-                    <p className="text-xs">Add image</p>
-                  </div>
-                )}
-              </div>
             </div>
             <input
               type="text"
@@ -843,12 +870,34 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             />
           </div>
         )}
-        
-        {/* Page 5 Left - Image with caption */}
-        {pageIndex === 4 && isLeftPage && (
+
+        {/* Page 4 Right - Image 8 */}
+        {pageIndex === 3 && isRightPage && (
+          <div className="w-full h-full bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
+            <div
+              className="absolute inset-0 cursor-pointer"
+              onClick={() => onImageClick(pageIndex, 'image8')}
+            />
+            {page.panels.find(p => p.id === 'image8')?.content ? (
+              <img
+                src={page.panels.find(p => p.id === 'image8')?.content}
+                alt="Uploaded"
+                className="w-full h-full object-cover rounded comic-image"
+              />
+            ) : (
+              <div className="text-gray-500 text-center">
+                <Upload className="w-12 h-12 mx-auto mb-2" />
+                <p>Image 8</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Page 5 - Single large image with caption at bottom */}
+        {pageIndex === 4 && (
           <div className="h-full flex flex-col">
-            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-4">
-              <div 
+            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-2">
+              <div
                 className="absolute inset-0 cursor-pointer"
                 onClick={() => onImageClick(pageIndex, 'image9')}
               />
@@ -856,12 +905,12 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                 <img
                   src={page.panels.find(p => p.id === 'image9')?.content}
                   alt="Uploaded"
-                  className="w-full h-full object-cover rounded"
+                  className="w-full h-full object-cover rounded comic-image"
                 />
               ) : (
                 <div className="text-gray-500 text-center">
                   <Upload className="w-12 h-12 mx-auto mb-2" />
-                  <p>Click to add image</p>
+                  <p>Image 9</p>
                 </div>
               )}
             </div>
@@ -874,31 +923,246 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             />
           </div>
         )}
-        
-        {/* Page 5 Right - Single image */}
-        {pageIndex === 4 && isRightPage && (
-          <div className="w-full h-full bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
-            <div 
-              className="absolute inset-0 cursor-pointer"
-              onClick={() => onImageClick(pageIndex, 'image10')}
+
+        {/* Page 6 Left - Image 10 with caption */}
+        {pageIndex === 5 && isLeftPage && (
+          <div className="h-full flex flex-col">
+            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-2">
+              <div
+                className="absolute inset-0 cursor-pointer"
+                onClick={() => onImageClick(pageIndex, 'image10')}
+              />
+              {page.panels.find(p => p.id === 'image10')?.content ? (
+                <img
+                  src={page.panels.find(p => p.id === 'image10')?.content}
+                  alt="Uploaded"
+                  className="w-full h-full object-cover rounded comic-image"
+                />
+              ) : (
+                <div className="text-gray-500 text-center">
+                  <Upload className="w-12 h-12 mx-auto mb-2" />
+                  <p>Image 10</p>
+                </div>
+              )}
+            </div>
+            <input
+              type="text"
+              placeholder="Add a caption here"
+              value={page.panels.find(p => p.id === 'caption6')?.content || ''}
+              className="bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
+              onChange={(e) => onTextChange(pageIndex, 'caption6', e.target.value)}
             />
-            {pages[pageIndex]?.panels?.find(p => p.id === 'image10')?.content ? (
+          </div>
+        )}
+
+        {/* Page 6 Right - Image 11 */}
+        {pageIndex === 5 && isRightPage && (
+          <div className="w-full h-full bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
+            <div
+              className="absolute inset-0 cursor-pointer"
+              onClick={() => onImageClick(pageIndex, 'image11')}
+            />
+            {page.panels.find(p => p.id === 'image11')?.content ? (
               <img
-                src={pages[pageIndex].panels.find(p => p.id === 'image10')?.content}
+                src={page.panels.find(p => p.id === 'image11')?.content}
                 alt="Uploaded"
-                className="w-full h-full object-cover rounded"
-                onError={(e) => {
-                  console.log('Image failed to load:', e.currentTarget.src);
-                }}
+                className="w-full h-full object-cover rounded comic-image"
               />
             ) : (
               <div className="text-gray-500 text-center">
                 <Upload className="w-12 h-12 mx-auto mb-2" />
-                <p>Click to add image</p>
+                <p>Image 11</p>
               </div>
             )}
           </div>
         )}
+
+        {/* Page 7 - Triple layout: full image with caption on top, two images on bottom */}
+        {pageIndex === 6 && layout === 'triple' && (
+          <div className="h-full flex flex-col space-y-2">
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-2">
+                <div
+                  className="absolute inset-0 cursor-pointer"
+                  onClick={() => onImageClick(pageIndex, 'image12')}
+                />
+                {page.panels.find(p => p.id === 'image12')?.content ? (
+                  <img
+                    src={page.panels.find(p => p.id === 'image12')?.content}
+                    alt="Uploaded"
+                    className="w-full h-full object-cover rounded comic-image"
+                  />
+                ) : (
+                  <div className="text-gray-500 text-center">
+                    <Upload className="w-10 h-10 mx-auto mb-1" />
+                    <p>Image 12</p>
+                  </div>
+                )}
+              </div>
+              <input
+                type="text"
+                placeholder="Add a caption here"
+                value={page.panels.find(p => p.id === 'caption7')?.content || ''}
+                className="bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500 text-sm"
+                onChange={(e) => onTextChange(pageIndex, 'caption7', e.target.value)}
+              />
+            </div>
+            <div className="flex space-x-2 h-1/2">
+              <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
+                <div
+                  className="absolute inset-0 cursor-pointer"
+                  onClick={() => onImageClick(pageIndex, 'image13')}
+                />
+                {page.panels.find(p => p.id === 'image13')?.content ? (
+                  <img
+                    src={page.panels.find(p => p.id === 'image13')?.content}
+                    alt="Uploaded"
+                    className="w-full h-full object-cover rounded comic-image"
+                  />
+                ) : (
+                  <div className="text-gray-500 text-center">
+                    <Upload className="w-8 h-8 mx-auto mb-1" />
+                    <p className="text-sm">Image 13</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
+                <div
+                  className="absolute inset-0 cursor-pointer"
+                  onClick={() => onImageClick(pageIndex, 'image14')}
+                />
+                {page.panels.find(p => p.id === 'image14')?.content ? (
+                  <img
+                    src={page.panels.find(p => p.id === 'image14')?.content}
+                    alt="Uploaded"
+                    className="w-full h-full object-cover rounded comic-image"
+                  />
+                ) : (
+                  <div className="text-gray-500 text-center">
+                    <Upload className="w-8 h-8 mx-auto mb-1" />
+                    <p className="text-sm">Image 14</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Page 8 - Single large image with caption at bottom */}
+        {pageIndex === 7 && (
+          <div className="h-full flex flex-col">
+            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-2">
+              <div
+                className="absolute inset-0 cursor-pointer"
+                onClick={() => onImageClick(pageIndex, 'image15')}
+              />
+              {page.panels.find(p => p.id === 'image15')?.content ? (
+                <img
+                  src={page.panels.find(p => p.id === 'image15')?.content}
+                  alt="Uploaded"
+                  className="w-full h-full object-cover rounded comic-image"
+                />
+              ) : (
+                <div className="text-gray-500 text-center">
+                  <Upload className="w-12 h-12 mx-auto mb-2" />
+                  <p>Image 15</p>
+                </div>
+              )}
+            </div>
+            <input
+              type="text"
+              placeholder="Add a caption here"
+              value={page.panels.find(p => p.id === 'caption8')?.content || ''}
+              className="bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
+              onChange={(e) => onTextChange(pageIndex, 'caption8', e.target.value)}
+            />
+          </div>
+        )}
+
+        {/* Page 9 Left - Image 16 with caption */}
+        {pageIndex === 8 && isLeftPage && (
+          <div className="h-full flex flex-col">
+            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-2">
+              <div
+                className="absolute inset-0 cursor-pointer"
+                onClick={() => onImageClick(pageIndex, 'image16')}
+              />
+              {page.panels.find(p => p.id === 'image16')?.content ? (
+                <img
+                  src={page.panels.find(p => p.id === 'image16')?.content}
+                  alt="Uploaded"
+                  className="w-full h-full object-cover rounded comic-image"
+                />
+              ) : (
+                <div className="text-gray-500 text-center">
+                  <Upload className="w-12 h-12 mx-auto mb-2" />
+                  <p>Image 16</p>
+                </div>
+              )}
+            </div>
+            <input
+              type="text"
+              placeholder="Add a caption here"
+              value={page.panels.find(p => p.id === 'caption9')?.content || ''}
+              className="bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
+              onChange={(e) => onTextChange(pageIndex, 'caption9', e.target.value)}
+            />
+          </div>
+        )}
+
+        {/* Page 9 Right - Image 17 */}
+        {pageIndex === 8 && isRightPage && (
+          <div className="w-full h-full bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative">
+            <div
+              className="absolute inset-0 cursor-pointer"
+              onClick={() => onImageClick(pageIndex, 'image17')}
+            />
+            {page.panels.find(p => p.id === 'image17')?.content ? (
+              <img
+                src={page.panels.find(p => p.id === 'image17')?.content}
+                alt="Uploaded"
+                className="w-full h-full object-cover rounded comic-image"
+              />
+            ) : (
+              <div className="text-gray-500 text-center">
+                <Upload className="w-12 h-12 mx-auto mb-2" />
+                <p>Image 17</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Page 10 - Single large image with caption at bottom */}
+        {pageIndex === 9 && (
+          <div className="h-full flex flex-col">
+            <div className="flex-1 bg-gray-300 rounded flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors relative mb-2">
+              <div
+                className="absolute inset-0 cursor-pointer"
+                onClick={() => onImageClick(pageIndex, 'image18')}
+              />
+              {page.panels.find(p => p.id === 'image18')?.content ? (
+                <img
+                  src={page.panels.find(p => p.id === 'image18')?.content}
+                  alt="Uploaded"
+                  className="w-full h-full object-cover rounded comic-image"
+                />
+              ) : (
+                <div className="text-gray-500 text-center">
+                  <Upload className="w-12 h-12 mx-auto mb-2" />
+                  <p>Image 18</p>
+                </div>
+              )}
+            </div>
+            <input
+              type="text"
+              placeholder="Add a caption here"
+              value={page.panels.find(p => p.id === 'caption10')?.content || ''}
+              className="bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
+              onChange={(e) => onTextChange(pageIndex, 'caption10', e.target.value)}
+            />
+          </div>
+        )}
+        </div>
       </div>
     </div>
   );

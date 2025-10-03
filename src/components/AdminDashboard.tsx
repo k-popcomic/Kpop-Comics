@@ -14,7 +14,11 @@ import {
   FileText,
   Clock,
   CheckCircle,
-  Trash2
+  Trash2,
+  Plus,
+  Link,
+  Copy,
+  Mail
 } from 'lucide-react';
 import Layout from './Layout';
 import { ComicSubmission } from '../types';
@@ -27,11 +31,19 @@ export default function AdminDashboard() {
   const [selectedSubmission, setSelectedSubmission] = useState<ComicSubmission | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [showCreateCustomer, setShowCreateCustomer] = useState(false);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [newCustomer, setNewCustomer] = useState({
+    unique_code: '',
+    email: '',
+    name: ''
+  });
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchSubmissions();
+    fetchCustomers();
   }, []);
 
   const fetchSubmissions = async () => {
@@ -48,6 +60,58 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchCustomers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCustomers(data || []);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    }
+  };
+
+  const generateUniqueCode = () => {
+    return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+  };
+
+  const createCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const customerData = {
+        ...newCustomer,
+        unique_code: newCustomer.unique_code || generateUniqueCode()
+      };
+
+      const { error } = await supabase
+        .from('customers')
+        .insert([customerData]);
+
+      if (error) throw error;
+
+      await fetchCustomers();
+      setNewCustomer({ unique_code: '', email: '', name: '' });
+      setShowCreateCustomer(false);
+      alert('Customer created successfully!');
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      alert('Error creating customer. Please try again.');
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert('Link copied to clipboard!');
+  };
+
+  const getUploadLink = (customerId: string) => {
+    return `${window.location.origin}/${customerId}`;
   };
 
   const updateSubmissionStatus = async (id: string, status: ComicSubmission['status']) => {
@@ -225,20 +289,20 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
             { 
+              label: 'Total Customers', 
+              value: customers.length, 
+              color: 'red',
+              icon: <Users className="w-6 h-6" />
+            },
+            { 
               label: 'Total Submissions', 
               value: getStatusCount('all'), 
-              color: 'red',
+              color: 'blue',
               icon: <FileText className="w-6 h-6" />
             },
             { 
               label: 'Submitted', 
               value: getStatusCount('submitted'), 
-              color: 'red',
-              icon: <Clock className="w-6 h-6" />
-            },
-            { 
-              label: 'Processing', 
-              value: getStatusCount('processing'), 
               color: 'yellow',
               icon: <Clock className="w-6 h-6" />
             },
@@ -261,6 +325,85 @@ export default function AdminDashboard() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Customer Management Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Customer Upload Links</h2>
+            <button
+              onClick={() => setShowCreateCustomer(true)}
+              className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Customer Link
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer Info
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Upload Link
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {customers.map((customer) => {
+                  const hasSubmission = submissions.find(s => s.customer_id === customer.unique_code);
+                  return (
+                    <tr key={customer.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{customer.name || 'No name'}</div>
+                          <div className="text-sm text-gray-500">{customer.email || 'No email'}</div>
+                          <div className="text-xs text-gray-400 font-mono">ID: {customer.unique_code}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-2">
+                          <code className="text-xs bg-gray-100 px-2 py-1 rounded">{getUploadLink(customer.unique_code)}</code>
+                          <button
+                            onClick={() => copyToClipboard(getUploadLink(customer.unique_code))}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          hasSubmission ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {hasSubmission ? 'Submitted' : 'Pending'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => window.open(`mailto:${customer.email}?subject=Your Comic Upload Link&body=Hi ${customer.name},%0D%0A%0D%0APlease use this link to upload your comic images:%0D%0A${getUploadLink(customer.unique_code)}%0D%0A%0D%0AThank you!`, '_blank')}
+                          className="text-blue-600 hover:text-blue-800 inline-flex items-center"
+                          disabled={!customer.email}
+                        >
+                          <Mail className="w-4 h-4 mr-1" />
+                          Email Link
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Filters */}
@@ -513,6 +656,85 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create Customer Modal */}
+        {showCreateCustomer && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-gray-900">Create Customer Upload Link</h3>
+                  <button
+                    onClick={() => setShowCreateCustomer(false)}
+                    className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                  >
+                    <span className="text-2xl">×</span>
+                  </button>
+                </div>
+              </div>
+              
+              <form onSubmit={createCustomer} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Customer Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newCustomer.name}
+                    onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+                    placeholder="Enter customer name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={newCustomer.email}
+                    onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
+                    placeholder="Enter email address"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Customer ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={newCustomer.unique_code}
+                    onChange={(e) => setNewCustomer({...newCustomer, unique_code: e.target.value})}
+                    placeholder="Auto-generated if empty"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Leave empty to auto-generate a unique ID</p>
+                </div>
+                
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateCustomer(false)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Create Customer Link
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
