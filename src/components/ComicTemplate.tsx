@@ -859,170 +859,281 @@ function ComicPageRenderer({
   pageIndex,
   onImageClick,
   onTextChange,
+  onDateChange,
 }: ComicPageRendererProps) {
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // State for calendar date picker
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
 
   return (
     <div className="relative w-[768px] h-[calc(100vh-100px)] mx-auto">
       <div className="h-full p-2 md:p-4 relative">
-       {pageIndex === 1 && (
-  <div
-    className="flex gap-6 justify-between"
-    style={{ width: "768px", height: "85vh", maxHeight: "900px" }}
-  >
-    {/* LEFT BOX */}
-    <div className="relative flex-1 bg-white border-8 border-black shadow-2xl rounded p-4 flex flex-col pt-20">
-      {/* Date Box */}
-      <div
-        className="absolute top-4 right-4 bg-yellow-400 text-black p-2 rounded text-center font-bold cursor-pointer hover:bg-yellow-300 z-10"
-        onClick={() => setShowDatePicker(!showDatePicker)}
-      >
-        <div className="text-xl">
-          {page.panels.find((p) => p.id === "date")?.content?.split("\n")[0] ||
-            "3"}
-        </div>
-        <div className="text-sm">
-          {page.panels.find((p) => p.id === "date")?.content?.split("\n")[1] ||
-            "Mar"}
-        </div>
-      </div>
-
-      {/* Date Picker */}
-      {showDatePicker && (
-        <div className="absolute top-16 right-2 bg-white border-2 border-gray-300 rounded-lg p-4 shadow-lg z-20">
-          <h3 className="font-bold mb-2 text-sm">Select Date</h3>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs">Day</label>
-              <select
-                className="w-full border rounded p-1 text-xs"
-                value={
-                  page.panels.find((p) => p.id === "date")?.content?.split("\n")[0] ||
-                  "3"
-                }
-                onChange={(e) => {
-                  const currentMonth =
-                    page.panels.find((p) => p.id === "date")?.content?.split("\n")[1] ||
-                    "Mar";
-                  onDateChange(pageIndex, "date", e.target.value, currentMonth);
-                }}
-              >
-                {Array.from({ length: 31 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-xs">Month</label>
-              <select
-                className="w-full border rounded p-1 text-xs"
-                value={
-                  page.panels.find((p) => p.id === "date")?.content?.split("\n")[1] ||
-                  "Mar"
-                }
-                onChange={(e) => {
-                  const currentDay =
-                    page.panels.find((p) => p.id === "date")?.content?.split("\n")[0] ||
-                    "3";
-                  onDateChange(pageIndex, "date", currentDay, e.target.value);
-                }}
-              >
-                {[
-                  "Jan",
-                  "Feb",
-                  "Mar",
-                  "Apr",
-                  "May",
-                  "Jun",
-                  "Jul",
-                  "Aug",
-                  "Sep",
-                  "Oct",
-                  "Nov",
-                  "Dec",
-                ].map((month) => (
-                  <option key={month} value={month}>
-                    {month}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <button
-            className="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-xs w-full"
-            onClick={() => setShowDatePicker(false)}
+        {pageIndex === 1 && (
+          <div
+            className="flex gap-6 justify-between"
+            style={{ width: "768px", height: "85vh", maxHeight: "900px" }}
           >
-            Done
-          </button>
-        </div>
-      )}
+            {/* LEFT BOX */}
+            <div className="relative flex-1 bg-white border-8 border-black shadow-2xl rounded p-4 flex flex-col pt-20">
+              {/* Date box */}
+              <div
+                className="absolute top-4 right-4 bg-yellow-400 text-black p-2 rounded text-center font-bold cursor-pointer hover:bg-yellow-300 z-10"
+                onClick={() => setShowDatePicker(!showDatePicker)}
+              >
+                <div className="text-xl">
+                  {page.panels
+                    .find((p) => p.id === "date")
+                    ?.content?.split("\n")[0] || "3"}
+                </div>
+                <div className="text-sm">
+                  {page.panels
+                    .find((p) => p.id === "date")
+                    ?.content?.split("\n")[1] || "Mar"}
+                </div>
+              </div>
 
-      {/* ✅ Title */}
-      <input
-        type="text"
-        placeholder="Add title"
-        value={page.panels.find((p) => p.id === "title")?.content || ""}
-        className="w-full bg-yellow-300 text-black p-2 rounded text-center mb-4 border-0 text-2xl font-bold focus:ring-2 focus:ring-yellow-500"
-        onChange={(e) => onTextChange(pageIndex, "title", e.target.value)}
-      />
+              {/* Calendar Date Picker Modal */}
+              {showDatePicker && (
+                <div className="absolute top-20 right-4 bg-white border-2 border-gray-300 rounded-lg p-4 shadow-xl z-20 w-80">
+                  {/* Month/Year Navigation */}
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      className="p-1 hover:bg-gray-100 rounded"
+                      onClick={() => {
+                        if (currentMonth === 0) {
+                          setCurrentMonth(11);
+                          setCurrentYear(currentYear - 1);
+                        } else {
+                          setCurrentMonth(currentMonth - 1);
+                        }
+                      }}
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <div className="font-bold text-lg">
+                      {
+                        [
+                          "January",
+                          "February",
+                          "March",
+                          "April",
+                          "May",
+                          "June",
+                          "July",
+                          "August",
+                          "September",
+                          "October",
+                          "November",
+                          "December",
+                        ][currentMonth]
+                      }{" "}
+                      {currentYear}
+                    </div>
+                    <button
+                      className="p-1 hover:bg-gray-100 rounded"
+                      onClick={() => {
+                        if (currentMonth === 11) {
+                          setCurrentMonth(0);
+                          setCurrentYear(currentYear + 1);
+                        } else {
+                          setCurrentMonth(currentMonth + 1);
+                        }
+                      }}
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
 
-      {/* Subtitle */}
-      <input
-        type="text"
-        placeholder="Add a subtitle"
-        value={page.panels.find((p) => p.id === "subtitle")?.content || ""}
-        className="w-full bg-yellow-400 text-black p-2 rounded text-center mb-4 border-0 focus:ring-2 focus:ring-yellow-500"
-        onChange={(e) => onTextChange(pageIndex, "subtitle", e.target.value)}
-      />
+                  {/* Day Labels */}
+                  <div className="grid grid-cols-7 gap-1 mb-2">
+                    {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+                      <div
+                        key={day}
+                        className="text-center text-xs font-semibold text-gray-600 p-1"
+                      >
+                        {day}
+                      </div>
+                    ))}
+                  </div>
 
-      {/* ✅ Cover Image */}
-      <div
-        className="flex-1 bg-gray-300 rounded flex items-center justify-center mb-4 cursor-pointer hover:bg-gray-400 transition-colors relative"
-        onClick={() => onImageClick(pageIndex, "coverImage")}
-      >
-        {page.panels.find((p) => p.id === "coverImage")?.content ? (
-          <img
-            src={page.panels.find((p) => p.id === "coverImage")?.content}
-            alt="Uploaded"
-            className="w-full h-full object-cover rounded"
-          />
-        ) : (
-          <div className="text-gray-500 text-center">
-            <Upload className="w-10 h-10 mx-auto mb-2" />
-            <p>Click to add image</p>
+                  {/* Calendar Grid */}
+                  <div className="grid grid-cols-7 gap-1">
+                    {(() => {
+                      const firstDay = new Date(
+                        currentYear,
+                        currentMonth,
+                        1
+                      ).getDay();
+                      const daysInMonth = new Date(
+                        currentYear,
+                        currentMonth + 1,
+                        0
+                      ).getDate();
+                      const days = [];
+
+                      // Empty cells for days before month starts
+                      for (let i = 0; i < firstDay; i++) {
+                        days.push(
+                          <div key={`empty-${i}`} className="p-2"></div>
+                        );
+                      }
+
+                      // Calendar days
+                      for (let day = 1; day <= daysInMonth; day++) {
+                        const isSelected =
+                          selectedDate.getDate() === day &&
+                          selectedDate.getMonth() === currentMonth &&
+                          selectedDate.getFullYear() === currentYear;
+                        days.push(
+                          <button
+                            key={day}
+                            className={`p-2 text-center rounded hover:bg-blue-100 transition-colors ${
+                              isSelected
+                                ? "bg-blue-500 text-white font-bold"
+                                : "text-gray-700"
+                            }`}
+                            onClick={() => {
+                              const newDate = new Date(
+                                currentYear,
+                                currentMonth,
+                                day
+                              );
+                              setSelectedDate(newDate);
+                              const monthNames = [
+                                "Jan",
+                                "Feb",
+                                "Mar",
+                                "Apr",
+                                "May",
+                                "Jun",
+                                "Jul",
+                                "Aug",
+                                "Sep",
+                                "Oct",
+                                "Nov",
+                                "Dec",
+                              ];
+                              onDateChange(
+                                pageIndex,
+                                "date",
+                                day.toString(),
+                                monthNames[currentMonth]
+                              );
+                              setShowDatePicker(false);
+                            }}
+                          >
+                            {day}
+                          </button>
+                        );
+                      }
+
+                      return days;
+                    })()}
+                  </div>
+
+                  {/* Today Button */}
+                  <button
+                    className="mt-4 bg-gray-200 hover:bg-gray-300 text-black px-3 py-2 rounded text-sm w-full font-medium"
+                    onClick={() => {
+                      const today = new Date();
+                      setSelectedDate(today);
+                      setCurrentMonth(today.getMonth());
+                      setCurrentYear(today.getFullYear());
+                      const monthNames = [
+                        "Jan",
+                        "Feb",
+                        "Mar",
+                        "Apr",
+                        "May",
+                        "Jun",
+                        "Jul",
+                        "Aug",
+                        "Sep",
+                        "Oct",
+                        "Nov",
+                        "Dec",
+                      ];
+                      onDateChange(
+                        pageIndex,
+                        "date",
+                        today.getDate().toString(),
+                        monthNames[today.getMonth()]
+                      );
+                      setShowDatePicker(false);
+                    }}
+                  >
+                    Today
+                  </button>
+                </div>
+              )}
+
+              {/* title */}
+              <input
+                type="text"
+                placeholder="Add a title"
+                className="w-3/4 bg-yellow-400 text-black p-2 rounded text-center mb-4 border-0 focus:ring-2 focus:ring-yellow-500"
+                onChange={(e) =>
+                  onTextChange(pageIndex, "title", e.target.value)
+                }
+              />
+
+              <div className="flex-1 w-full max-w-xl bg-white p-3 border-8 border-black shadow-2xl mb-6 overflow-hidden">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative cursor-pointer">
+                  <div
+                    className="absolute inset-0 cursor-pointer"
+                    onClick={() => onImageClick(pageIndex, "coverImage")}
+                  />
+                  {page.panels.find((p) => p.id === "coverImage")?.content ? (
+                    <img
+                      src={
+                        page.panels.find((p) => p.id === "coverImage")?.content
+                      }
+                      alt="Uploaded"
+                      className="w-full h-full object-cover comic-image"
+                    />
+                  ) : (
+                    <div className="text-gray-500 text-center">
+                      <Upload className="w-16 h-16 mx-auto mb-2" />
+                      <p>Click to add image</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Caption */}
+              <input
+                type="text"
+                placeholder="Add a caption"
+                className="w-full bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
+                onChange={(e) =>
+                  onTextChange(pageIndex, "coverCaption", e.target.value)
+                }
+              />
+            </div>
+
+            {/* ✅ RIGHT BOX — message input */}
+            <div className="flex-1  border-8 border-black text-white shadow-2xl rounded p-4 flex flex-col">
+              <textarea
+                placeholder="Message here"
+                value={
+                  page.panels.find((p) => p.id === "messageText")?.content || ""
+                }
+                className="w-full h-full bg-blue-600 flex items-center justify-center p-8 text-white"
+                onChange={(e) =>
+                  onTextChange(pageIndex, "messageText", e.target.value)
+                }
+              />
+            </div>
           </div>
         )}
-      </div>
-
-      {/* ✅ Caption */}
-      <input
-        type="text"
-        placeholder="Add a caption"
-        value={page.panels.find((p) => p.id === "coverCaption")?.content || ""}
-        className="w-full bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
-        onChange={(e) => onTextChange(pageIndex, "coverCaption", e.target.value)}
-      />
-    </div>
-
-    {/* ✅ RIGHT BOX — message input */}
-    <div className="flex-1 bg-yellow-400 border-8 border-black shadow-2xl rounded p-4 flex flex-col">
-      <textarea
-        placeholder="message here"
-        value={page.panels.find((p) => p.id === "messageText")?.content || ""}
-        className="w-full h-full bg-transparent text-black text-xl p-4 border-0 focus:ring-2 focus:ring-yellow-500 rounded resize-none placeholder-black/50"
-        onChange={(e) => onTextChange(pageIndex, "messageText", e.target.value)}
-      />
-    </div>
-  </div>
-)}
 
         {pageIndex === 2 && (
           <div className="h-full flex flex-row gap-3">
             {/* Image 1 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl cursor-pointer transition-colors">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl cursor-pointer transition-colors overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1055,7 +1166,7 @@ function ComicPageRenderer({
             </div>
 
             {/* Image 2 - Full width */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl cursor-pointer transition-colors">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl cursor-pointer transition-colors overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer"
@@ -1078,7 +1189,7 @@ function ComicPageRenderer({
         )}
 
         {pageIndex === 3 && (
-          <div className="h-full bg-white p-3 border-8 border-black shadow-2xl">
+          <div className="h-full bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
@@ -1110,15 +1221,16 @@ function ComicPageRenderer({
             </div>
           </div>
         )}
+
         {pageIndex === 4 && (
           <div className="h-full flex flex-col gap-3">
             {/* Top row: 2 vertical images */}
             <div className="flex gap-3 flex-[2]">
               {/* Image 4 */}
-              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl overflow-hidden rounded-lg">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                   <div
-                    className="absolute inset-0 cursor-pointer"
+                    className="absolute inset-0 cursor-pointer z-10"
                     onClick={() => onImageClick(pageIndex, "image4")}
                   />
                   {page.panels.find((p) => p.id === "image4")?.content ? (
@@ -1128,17 +1240,18 @@ function ComicPageRenderer({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="text-6xl font-thin text-gray-600">
+                    <div className="text-gray-400">
                       <Upload className="w-16 h-16" />
                     </div>
                   )}
                 </div>
               </div>
+
               {/* Image 5 */}
-              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl overflow-hidden rounded-lg">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                   <div
-                    className="absolute inset-0 cursor-pointer"
+                    className="absolute inset-0 cursor-pointer z-10"
                     onClick={() => onImageClick(pageIndex, "image5")}
                   />
                   {page.panels.find((p) => p.id === "image5")?.content ? (
@@ -1155,9 +1268,10 @@ function ComicPageRenderer({
                 </div>
               </div>
             </div>
+
             {/* Bottom: 1 horizontal image with caption */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden rounded-lg">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image6")}
@@ -1189,10 +1303,11 @@ function ComicPageRenderer({
             </div>
           </div>
         )}
+
         {pageIndex === 5 && (
           <div className="h-full flex flex-row gap-3">
             {/* Image 7 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1225,7 +1340,7 @@ function ComicPageRenderer({
             </div>
 
             {/* Image 8 - Full width */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer"
@@ -1248,7 +1363,7 @@ function ComicPageRenderer({
         )}
 
         {pageIndex === 6 && (
-          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3">
+          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3 overflow-hidden">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
@@ -1280,10 +1395,11 @@ function ComicPageRenderer({
             </div>
           </div>
         )}
+
         {pageIndex === 7 && (
           <div className="h-full flex flex-row gap-3">
             {/* Image 10 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1315,7 +1431,7 @@ function ComicPageRenderer({
             </div>
 
             {/* Image 11 - Full width */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer"
@@ -1328,16 +1444,19 @@ function ComicPageRenderer({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="text-6xl font-thin text-gray-800">/ /</div>
+                  <div className="text-gray-400">
+                    <Upload className="w-16 h-16" />
+                  </div>
                 )}
               </div>
             </div>
           </div>
         )}
+
         {pageIndex === 8 && (
           <div className="h-full flex flex-col gap-3">
             {/* Image 12 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1367,9 +1486,10 @@ function ComicPageRenderer({
                 />
               </div>
             </div>
+
             {/* Bottom row: 2 images side by side */}
             <div className="flex gap-3 flex-[2]">
-              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl">
+              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                   <div
                     className="absolute inset-0 cursor-pointer"
@@ -1388,7 +1508,7 @@ function ComicPageRenderer({
                   )}
                 </div>
               </div>
-              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl">
+              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                   <div
                     className="absolute inset-0 cursor-pointer"
@@ -1410,8 +1530,9 @@ function ComicPageRenderer({
             </div>
           </div>
         )}
+
         {pageIndex === 9 && (
-          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3">
+          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3 overflow-hidden">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
@@ -1446,7 +1567,7 @@ function ComicPageRenderer({
         {pageIndex === 10 && (
           <div className="h-full flex flex-row gap-3">
             {/* Image 16 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1478,7 +1599,7 @@ function ComicPageRenderer({
             </div>
 
             {/* Image 17 - Full width */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl">
+            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer"
@@ -1499,8 +1620,9 @@ function ComicPageRenderer({
             </div>
           </div>
         )}
+
         {pageIndex === 11 && (
-          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3">
+          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3 overflow-hidden">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
