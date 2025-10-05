@@ -204,6 +204,11 @@ export default function ComicTemplate() {
               if (panel) {
                 panel.content = img.url;
                 panel.image = img.url;
+                if (img.caption) {
+                  const captionId = img.id.replace('image', 'caption');
+                  const captionPanel = restoredPages[pageIndex].panels.find(p => p.id === captionId);
+                  if (captionPanel) captionPanel.content = img.caption;
+                }
                 break;
               }
             }
@@ -216,8 +221,28 @@ export default function ComicTemplate() {
         }
 
         if (data.description) {
-          const subtitlePanel = restoredPages[0].panels.find(p => p.id === 'subtitle');
-          if (subtitlePanel) subtitlePanel.content = data.description;
+          try {
+            const descData = JSON.parse(data.description);
+            if (descData.subtitle) {
+              const subtitlePanel = restoredPages[0].panels.find(p => p.id === 'subtitle');
+              if (subtitlePanel) subtitlePanel.content = descData.subtitle;
+            }
+            if (descData.coverCaption) {
+              const captionPanel = restoredPages[0].panels.find(p => p.id === 'coverCaption');
+              if (captionPanel) captionPanel.content = descData.coverCaption;
+            }
+            if (descData.messageText) {
+              const messagePanel = restoredPages[1].panels.find(p => p.id === 'messageText');
+              if (messagePanel) messagePanel.content = descData.messageText;
+            }
+            if (descData.coverDate) {
+              const datePanel = restoredPages[0].panels.find(p => p.id === 'date');
+              if (datePanel) datePanel.content = descData.coverDate;
+            }
+          } catch {
+            const subtitlePanel = restoredPages[0].panels.find(p => p.id === 'subtitle');
+            if (subtitlePanel) subtitlePanel.content = data.description;
+          }
         }
 
         setPages(restoredPages);
@@ -277,26 +302,39 @@ export default function ComicTemplate() {
 
   const saveDraft = async (currentPages: ComicPage[]) => {
     try {
-      const images: ComicImage[] = [];
+      const images: any[] = [];
       let imageIndex = 0;
       let title = '';
-      let description = '';
+      let subtitle = '';
+      let coverDate = '';
+      let coverCaption = '';
+      let messageText = '';
 
       for (const page of currentPages) {
         for (const panel of page.panels) {
           if (panel.type === 'image' && panel.content && panel.image) {
+            const captionId = panel.id.replace('image', 'caption');
+            const captionPanel = page.panels.find(p => p.id === captionId);
             images.push({
               id: panel.id,
               url: panel.content,
-              caption: '',
+              caption: captionPanel?.content || '',
               order_index: imageIndex++,
               file_name: `${panel.id}.jpg`,
               file_size: typeof panel.image === 'object' ? panel.image.size : 0
             });
-          } else if (panel.id === 'title' && panel.content) {
-            title = panel.content;
-          } else if (panel.id === 'subtitle' && panel.content) {
-            description = panel.content;
+          } else if (panel.type === 'text') {
+            if (panel.id === 'title') {
+              title = panel.content;
+            } else if (panel.id === 'subtitle') {
+              subtitle = panel.content;
+            } else if (panel.id === 'coverCaption') {
+              coverCaption = panel.content;
+            } else if (panel.id === 'messageText') {
+              messageText = panel.content;
+            }
+          } else if (panel.type === 'date') {
+            coverDate = panel.content;
           }
         }
       }
@@ -304,8 +342,13 @@ export default function ComicTemplate() {
       const draftData = {
         customer_id: customerId!,
         title: title || '',
-        description: description || '',
-        date: new Date().toISOString().split('T')[0],
+        description: JSON.stringify({
+          subtitle,
+          coverCaption,
+          messageText,
+          coverDate
+        }),
+        date: coverDate || new Date().toISOString().split('T')[0],
         images: images,
         status: 'draft' as const
       };
@@ -350,15 +393,17 @@ export default function ComicTemplate() {
         }
       }
 
-      const images: ComicImage[] = [];
+      const images: any[] = [];
       let imageIndex = 0;
       for (const page of updatedPages) {
         for (const panel of page.panels) {
           if (panel.type === 'image' && panel.content && panel.content !== '') {
+            const captionId = panel.id.replace('image', 'caption');
+            const captionPanel = page.panels.find(p => p.id === captionId);
             images.push({
               id: panel.id,
               url: panel.content,
-              caption: '',
+              caption: captionPanel?.content || '',
               order_index: imageIndex++,
               file_name: `${panel.id}.jpg`,
               file_size: 0
@@ -367,10 +412,34 @@ export default function ComicTemplate() {
         }
       }
 
+      let title = '';
+      let subtitle = '';
+      let coverDate = '';
+      let coverCaption = '';
+      let messageText = '';
+
+      for (const page of updatedPages) {
+        for (const panel of page.panels) {
+          if (panel.type === 'text') {
+            if (panel.id === 'title') title = panel.content;
+            else if (panel.id === 'subtitle') subtitle = panel.content;
+            else if (panel.id === 'coverCaption') coverCaption = panel.content;
+            else if (panel.id === 'messageText') messageText = panel.content;
+          } else if (panel.type === 'date') {
+            coverDate = panel.content;
+          }
+        }
+      }
+
       const submissionData = {
-        title: updatedPages[0].panels.find(p => p.id === 'title')?.content || 'Comic Submission',
-        description: updatedPages[0].panels.find(p => p.id === 'subtitle')?.content || '',
-        date: new Date().toISOString().split('T')[0],
+        title: title || 'Comic Submission',
+        description: JSON.stringify({
+          subtitle,
+          coverCaption,
+          messageText,
+          coverDate
+        }),
+        date: coverDate || new Date().toISOString().split('T')[0],
         images: images,
         status: 'submitted' as const
       };
@@ -581,7 +650,15 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
   const [editingDate, setEditingDate] = useState(false);
 
   return (
-    <div className="bg-white border-4 border-black shadow-2xl" style={{ width: '403.491px', height: '85vh', minHeight: '650px', maxHeight: '690px' }}>
+    <div
+      className="bg-white border-4 border-black shadow-2xl"
+      style={{
+        width: "403.491px",
+        height: "85vh",
+        minHeight: "650px",
+        maxHeight: "690px",
+      }}
+    >
       <div className="h-full p-3 relative">
         {/* Cover Page */}
         {pageIndex === 0 && (
@@ -595,23 +672,62 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                     min="1"
                     max="31"
                     className="w-16 border rounded p-1 text-center text-xl font-bold"
-                    value={page.panels.find(p => p.id === 'date')?.content?.split('\n')[0] || '1'}
+                    value={
+                      page.panels
+                        .find((p) => p.id === "date")
+                        ?.content?.split("\n")[0] || "1"
+                    }
                     onChange={(e) => {
-                      const currentMonth = page.panels.find(p => p.id === 'date')?.content?.split('\n')[1] || 'Sep';
-                      onDateChange(pageIndex, 'date', e.target.value, currentMonth);
+                      const currentMonth =
+                        page.panels
+                          .find((p) => p.id === "date")
+                          ?.content?.split("\n")[1] || "Sep";
+                      onDateChange(
+                        pageIndex,
+                        "date",
+                        e.target.value,
+                        currentMonth
+                      );
                     }}
                     autoFocus
                   />
                   <select
                     className="w-16 border rounded p-1 text-center text-sm"
-                    value={page.panels.find(p => p.id === 'date')?.content?.split('\n')[1] || 'Sep'}
+                    value={
+                      page.panels
+                        .find((p) => p.id === "date")
+                        ?.content?.split("\n")[1] || "Sep"
+                    }
                     onChange={(e) => {
-                      const currentDay = page.panels.find(p => p.id === 'date')?.content?.split('\n')[0] || '1';
-                      onDateChange(pageIndex, 'date', currentDay, e.target.value);
+                      const currentDay =
+                        page.panels
+                          .find((p) => p.id === "date")
+                          ?.content?.split("\n")[0] || "1";
+                      onDateChange(
+                        pageIndex,
+                        "date",
+                        currentDay,
+                        e.target.value
+                      );
                     }}
                   >
-                    {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(month => (
-                      <option key={month} value={month}>{month}</option>
+                    {[
+                      "Jan",
+                      "Feb",
+                      "Mar",
+                      "Apr",
+                      "May",
+                      "Jun",
+                      "Jul",
+                      "Aug",
+                      "Sep",
+                      "Oct",
+                      "Nov",
+                      "Dec",
+                    ].map((month) => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
                     ))}
                   </select>
                   <button
@@ -627,8 +743,16 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                 className="absolute top-4 right-4 bg-yellow-400 text-black p-2 rounded text-center font-bold cursor-pointer hover:bg-yellow-300 z-10"
                 onClick={() => setEditingDate(true)}
               >
-                <div className="text-xl">{page.panels.find(p => p.id === 'date')?.content?.split('\n')[0] || '1'}</div>
-                <div className="text-sm">{page.panels.find(p => p.id === 'date')?.content?.split('\n')[1] || 'Sep'}</div>
+                <div className="text-xl">
+                  {page.panels
+                    .find((p) => p.id === "date")
+                    ?.content?.split("\n")[0] || "1"}
+                </div>
+                <div className="text-sm">
+                  {page.panels
+                    .find((p) => p.id === "date")
+                    ?.content?.split("\n")[1] || "Sep"}
+                </div>
               </div>
             )}
 
@@ -636,29 +760,32 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             <input
               type="text"
               placeholder="title"
-              value={page.panels.find(p => p.id === 'title')?.content || ''}
+              value={page.panels.find((p) => p.id === "title")?.content || ""}
               className="w-3/4 bg-yellow-400 text-black p-3 rounded font-bold text-center mb-2 border-0 focus:ring-2 focus:ring-yellow-500 text-xl"
-              onChange={(e) => onTextChange(pageIndex, 'title', e.target.value)}
+              onChange={(e) => onTextChange(pageIndex, "title", e.target.value)}
             />
 
             {/* Subtitle */}
             <input
               type="text"
               placeholder="Add a subtitle"
-              value={page.panels.find(p => p.id === 'subtitle')?.content || ''}
+              value={
+                page.panels.find((p) => p.id === "subtitle")?.content || ""
+              }
               className="w-3/4 bg-yellow-400 text-black p-2 rounded text-center mb-4 border-0 focus:ring-2 focus:ring-yellow-500"
-              onChange={(e) => onTextChange(pageIndex, 'subtitle', e.target.value)}
+              onChange={(e) =>
+                onTextChange(pageIndex, "subtitle", e.target.value)
+              }
             />
-
             {/* Cover image */}
-            <div className="flex-1 w-full max-w-xl bg-white mb-4 relative cursor-pointer">
+            <div className="flex-1 w-full max-w-xl  mb-4 relative cursor-pointer overflow-hidden">
               <div
                 className="absolute inset-0 z-10"
-                onClick={() => onImageClick(pageIndex, 'coverImage')}
+                onClick={() => onImageClick(pageIndex, "coverImage")}
               />
-              {page.panels.find(p => p.id === 'coverImage')?.content ? (
+              {page.panels.find((p) => p.id === "coverImage")?.content ? (
                 <img
-                  src={page.panels.find(p => p.id === 'coverImage')?.content}
+                  src={page.panels.find((p) => p.id === "coverImage")?.content}
                   alt="Cover"
                   className="w-full h-full object-cover"
                 />
@@ -674,9 +801,13 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             <input
               type="text"
               placeholder="Add a caption"
-              value={page.panels.find(p => p.id === 'coverCaption')?.content || ''}
+              value={
+                page.panels.find((p) => p.id === "coverCaption")?.content || ""
+              }
               className="w-full bg-yellow-400 text-black p-2 rounded text-center border-0 focus:ring-2 focus:ring-yellow-500"
-              onChange={(e) => onTextChange(pageIndex, 'coverCaption', e.target.value)}
+              onChange={(e) =>
+                onTextChange(pageIndex, "coverCaption", e.target.value)
+              }
             />
           </div>
         )}
@@ -687,9 +818,13 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             <div className="w-full h-full bg-blue-600 flex items-center justify-center p-8">
               <textarea
                 placeholder="Add your message here..."
-                value={page.panels.find(p => p.id === 'messageText')?.content || ''}
+                value={
+                  page.panels.find((p) => p.id === "messageText")?.content || ""
+                }
                 className="w-full h-full bg-transparent text-white text-2xl p-4 border-0 focus:outline-none resize-none placeholder-white/60 text-center"
-                onChange={(e) => onTextChange(pageIndex, 'messageText', e.target.value)}
+                onChange={(e) =>
+                  onTextChange(pageIndex, "messageText", e.target.value)
+                }
               />
             </div>
           </div>
@@ -698,40 +833,48 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {/* Page 1: 2 images stacked */}
         {pageIndex === 2 && (
           <div className="h-full flex flex-col gap-3">
-            <div className="relative flex-1 bg-white">
+            {/* Top Image Box with caption bottom-left */}
+            <div className="relative flex-1  overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
-                  onClick={() => onImageClick(pageIndex, 'image1')}
+                  onClick={() => onImageClick(pageIndex, "image1")}
                 />
-                {page.panels.find(p => p.id === 'image1')?.content ? (
+                {page.panels.find((p) => p.id === "image1")?.content ? (
                   <img
-                    src={page.panels.find(p => p.id === 'image1')?.content}
+                    src={page.panels.find((p) => p.id === "image1")?.content}
                     alt="Uploaded"
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <Upload className="w-16 h-16 text-gray-600" />
                 )}
+
+                {/* Caption bottom-left */}
                 <input
                   type="text"
                   placeholder="Add a caption here"
-                  value={page.panels.find(p => p.id === 'caption1')?.content || ''}
+                  value={
+                    page.panels.find((p) => p.id === "caption1")?.content || ""
+                  }
                   className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20"
-                  onChange={(e) => onTextChange(pageIndex, 'caption1', e.target.value)}
+                  onChange={(e) =>
+                    onTextChange(pageIndex, "caption1", e.target.value)
+                  }
                 />
               </div>
             </div>
 
-            <div className="relative flex-1 bg-white">
+            {/* Bottom Image Box */}
+            <div className="relative flex-1  overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
-                  className="absolute inset-0 cursor-pointer"
-                  onClick={() => onImageClick(pageIndex, 'image2')}
+                  className="absolute inset-0 cursor-pointer z-10"
+                  onClick={() => onImageClick(pageIndex, "image2")}
                 />
-                {page.panels.find(p => p.id === 'image2')?.content ? (
+                {page.panels.find((p) => p.id === "image2")?.content ? (
                   <img
-                    src={page.panels.find(p => p.id === 'image2')?.content}
+                    src={page.panels.find((p) => p.id === "image2")?.content}
                     alt="Uploaded"
                     className="w-full h-full object-cover"
                   />
@@ -745,39 +888,48 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
 
         {/* Page 2: 1 full image */}
         {pageIndex === 3 && (
-          <div className="h-full bg-white">
+          <div className="h-full  overflow-hidden">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+              {/* Click overlay */}
               <div
                 className="absolute inset-0 cursor-pointer z-10"
-                onClick={() => onImageClick(pageIndex, 'image3')}
+                onClick={() => onImageClick(pageIndex, "image3")}
               />
-              {page.panels.find(p => p.id === 'image3')?.content ? (
+
+              {/* Uploaded image or upload icon */}
+              {page.panels.find((p) => p.id === "image3")?.content ? (
                 <img
-                  src={page.panels.find(p => p.id === 'image3')?.content}
+                  src={page.panels.find((p) => p.id === "image3")?.content}
                   alt="Uploaded"
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <Upload className="w-16 h-16 text-gray-600" />
               )}
+
+              {/* Caption bottom-right */}
               <input
                 type="text"
                 placeholder="Add a caption here"
-                value={page.panels.find(p => p.id === 'caption3')?.content || ''}
+                value={
+                  page.panels.find((p) => p.id === "caption3")?.content || ""
+                }
                 className="absolute bottom-2 right-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20"
-                onChange={(e) => onTextChange(pageIndex, 'caption3', e.target.value)}
+                onChange={(e) =>
+                  onTextChange(pageIndex, "caption3", e.target.value)
+                }
               />
             </div>
           </div>
         )}
 
         {pageIndex === 4 && (
-          <div className="h-full flex flex-col gap-3">
+          <div className="h-full  flex flex-col gap-3 overflow-hidden">
             {/* Top row: 2 vertical images */}
             <div className="flex gap-3 flex-[2]">
               {/* Image 4 */}
-              <div className="flex-1 bg-white  overflow-hidden rounded-lg">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+              <div className="flex-1 bg-white overflow-hidden rounded-lg border border-gray-200 shadow-inner">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                   <div
                     className="absolute inset-0 cursor-pointer z-10"
                     onClick={() => onImageClick(pageIndex, "image4")}
@@ -797,8 +949,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               </div>
 
               {/* Image 5 */}
-              <div className="flex-1 bg-white  overflow-hidden rounded-lg">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+              <div className="flex-1 bg-white overflow-hidden rounded-lg border border-gray-200 shadow-inner">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                   <div
                     className="absolute inset-0 cursor-pointer z-10"
                     onClick={() => onImageClick(pageIndex, "image5")}
@@ -819,8 +971,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Bottom: 1 horizontal image with caption */}
-            <div className="relative flex-[2] overflow-hidden rounded-lg">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+            <div className="relative flex-[2] overflow-hidden rounded-lg border border-gray-200 shadow-inner">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image6")}
@@ -836,7 +988,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                     <Upload className="w-16 h-16" />
                   </div>
                 )}
-                {/* Caption box bottom-right */}
+
+                {/* Caption bottom-right */}
                 <input
                   type="text"
                   placeholder="Add a caption here"
@@ -854,9 +1007,9 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         )}
 
         {pageIndex === 5 && (
-          <div className="h-full flex flex-col gap-3">
+          <div className="h-full  flex flex-col gap-3 overflow-hidden">
             {/* Image 7 with caption bottom-left */}
-            <div className="relative flex-[2] overflow-hidden">
+            <div className="relative flex-[2] overflow-hidden rounded-lg border border-gray-200 shadow-inner">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -889,10 +1042,10 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Image 8 - Full width */}
-            <div className="relative flex-[2]  overflow-hidden">
+            <div className="relative flex-[2] overflow-hidden rounded-lg border border-gray-200 shadow-inner">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
-                  className="absolute inset-0 cursor-pointer"
+                  className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image8")}
                 />
                 {page.panels.find((p) => p.id === "image8")?.content ? (
@@ -912,8 +1065,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         )}
 
         {pageIndex === 6 && (
-          <div className="h-full relative  overflow-hidden">
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+          <div className="h-full relative overflow-hidden rounded-lg">
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden  shadow-2xl">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
                 onClick={() => onImageClick(pageIndex, "image9")}
@@ -936,7 +1089,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                 value={
                   page.panels.find((p) => p.id === "caption9")?.content || ""
                 }
-                className="absolute bottom-2 right-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20"
+                className="absolute bottom-2 right-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20 rounded-md"
                 onChange={(e) =>
                   onTextChange(pageIndex, "caption9", e.target.value)
                 }
@@ -948,8 +1101,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 7 && (
           <div className="h-full flex flex-col gap-3">
             {/* Image 10 with caption bottom-left */}
-            <div className="relative flex-[2]  overflow-hidden">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+            <div className="relative flex-[2] overflow-hidden  shadow-2xl">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image10")}
@@ -971,7 +1124,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                   value={
                     page.panels.find((p) => p.id === "caption10")?.content || ""
                   }
-                  className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20"
+                  className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20 rounded-md"
                   onChange={(e) =>
                     onTextChange(pageIndex, "caption10", e.target.value)
                   }
@@ -980,10 +1133,10 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Image 11 - Full width */}
-            <div className="relative flex-[2] overflow-hidden">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+            <div className="relative flex-[2] overflow-hidden  shadow-2xl">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                 <div
-                  className="absolute inset-0 cursor-pointer"
+                  className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image11")}
                 />
                 {page.panels.find((p) => p.id === "image11")?.content ? (
@@ -1004,9 +1157,9 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
 
         {pageIndex === 8 && (
           <div className="h-full flex flex-col gap-3">
-            {/* Image 12 with caption bottom-left */}
-            <div className="relative flex-[2]  overflow-hidden">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+            {/* Top: Image 12 with caption bottom-left */}
+            <div className="relative flex-[2] overflow-hidden  shadow-2xl">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image12")}
@@ -1022,13 +1175,14 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                     <Upload className="w-16 h-16" />
                   </div>
                 )}
+                {/* Caption bottom-left */}
                 <input
                   type="text"
                   placeholder="Add a caption here"
                   value={
                     page.panels.find((p) => p.id === "caption12")?.content || ""
                   }
-                  className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20"
+                  className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20 rounded-md"
                   onChange={(e) =>
                     onTextChange(pageIndex, "caption12", e.target.value)
                   }
@@ -1036,12 +1190,13 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               </div>
             </div>
 
-            {/* Bottom row: 2 images side by side */}
+            {/* Bottom: 2 images side by side */}
             <div className="flex gap-3 flex-[2]">
-              <div className="flex-1 bg-white  overflow-hidden">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+              {/* Image 13 */}
+              <div className="flex-1 bg-white overflow-hidden  shadow-2xl">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                   <div
-                    className="absolute inset-0 cursor-pointer"
+                    className="absolute inset-0 cursor-pointer z-10"
                     onClick={() => onImageClick(pageIndex, "image13")}
                   />
                   {page.panels.find((p) => p.id === "image13")?.content ? (
@@ -1057,10 +1212,12 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                   )}
                 </div>
               </div>
-              <div className="flex-1 bg-white  overflow-hidden">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+
+              {/* Image 14 */}
+              <div className="flex-1 bg-white overflow-hidden  shadow-2xl">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                   <div
-                    className="absolute inset-0 cursor-pointer"
+                    className="absolute inset-0 cursor-pointer z-10"
                     onClick={() => onImageClick(pageIndex, "image14")}
                   />
                   {page.panels.find((p) => p.id === "image14")?.content ? (
@@ -1081,8 +1238,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         )}
 
         {pageIndex === 9 && (
-          <div className="h-full relative  overflow-hidden">
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+          <div className="h-full relative overflow-hidden  shadow-2xl bg-white">
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
                 onClick={() => onImageClick(pageIndex, "image15")}
@@ -1098,13 +1255,14 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                   <Upload className="w-16 h-16" />
                 </div>
               )}
+              {/* Caption bottom-left */}
               <input
                 type="text"
                 placeholder="Add a caption here"
                 value={
                   page.panels.find((p) => p.id === "caption15")?.content || ""
                 }
-                className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20"
+                className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20 rounded-md"
                 onChange={(e) =>
                   onTextChange(pageIndex, "caption15", e.target.value)
                 }
@@ -1115,9 +1273,9 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
 
         {pageIndex === 10 && (
           <div className="h-full flex flex-col gap-3">
-            {/* Image 16 with caption bottom-left */}
-            <div className="relative flex-[2]  overflow-hidden">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+            {/* Top: Image 16 with caption bottom-left */}
+            <div className="relative flex-[2] overflow-hidden  bg-white shadow-2xl">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image16")}
@@ -1139,7 +1297,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                   value={
                     page.panels.find((p) => p.id === "caption16")?.content || ""
                   }
-                  className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20"
+                  className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20 rounded-md"
                   onChange={(e) =>
                     onTextChange(pageIndex, "caption16", e.target.value)
                   }
@@ -1147,11 +1305,11 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               </div>
             </div>
 
-            {/* Image 17 - Full width */}
-            <div className="relative flex-[2] overflow-hidden">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+            {/* Bottom: Image 17 full width */}
+            <div className="relative flex-[2] overflow-hidden  bg-white shadow-2xl">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                 <div
-                  className="absolute inset-0 cursor-pointer"
+                  className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image17")}
                 />
                 {page.panels.find((p) => p.id === "image17")?.content ? (
@@ -1169,10 +1327,9 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
           </div>
         )}
-
         {pageIndex === 11 && (
-          <div className="h-full relative  overflow-hidden">
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
+          <div className="h-full relative overflow-hidden  bg-white shadow-2xl">
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
                 onClick={() => onImageClick(pageIndex, "image18")}
@@ -1194,7 +1351,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                 value={
                   page.panels.find((p) => p.id === "caption18")?.content || ""
                 }
-                className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20"
+                className="absolute bottom-2 left-2 bg-yellow-400 border-2 border-black px-3 py-1 text-sm font-bold z-20 rounded-md"
                 onChange={(e) =>
                   onTextChange(pageIndex, "caption18", e.target.value)
                 }
