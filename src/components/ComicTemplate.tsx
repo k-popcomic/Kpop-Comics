@@ -477,7 +477,7 @@ export default function ComicTemplate() {
   const currentPageData = pages[currentPage];
 
   return (
-    <div className="h-screen w-screen bg-gray-200 flex items-center justify-center overflow-hidden relative">
+    <div className="flex items-center justify-center overflow-hidden relative">
       <div className="w-full h-full flex flex-col items-center justify-center">
         {/* Navigation */}
         <div className="flex items-center justify-center mb-4 md:mb-6 relative">
@@ -581,7 +581,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
   const [editingDate, setEditingDate] = useState(false);
 
   return (
-    <div className="bg-white border-8 border-black shadow-2xl" style={{ width: '550px', height: '85vh', minHeight: '650px', maxHeight: '800px' }}>
+    <div className="bg-white border-4 border-black shadow-2xl" style={{ width: '403.491px', height: '85vh', minHeight: '650px', maxHeight: '690px' }}>
       <div className="h-full p-3 relative">
         {/* Cover Page */}
         {pageIndex === 0 && (
@@ -651,7 +651,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             />
 
             {/* Cover image */}
-            <div className="flex-1 w-full max-w-xl bg-white border-4 border-black mb-4 relative cursor-pointer">
+            <div className="flex-1 w-full max-w-xl bg-white mb-4 relative cursor-pointer">
               <div
                 className="absolute inset-0 z-10"
                 onClick={() => onImageClick(pageIndex, 'coverImage')}
@@ -698,7 +698,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {/* Page 1: 2 images stacked */}
         {pageIndex === 2 && (
           <div className="h-full flex flex-col gap-3">
-            <div className="relative flex-1 bg-white border-4 border-black">
+            <div className="relative flex-1 bg-white">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -723,7 +723,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               </div>
             </div>
 
-            <div className="relative flex-1 bg-white border-4 border-black">
+            <div className="relative flex-1 bg-white">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer"
@@ -745,7 +745,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
 
         {/* Page 2: 1 full image */}
         {pageIndex === 3 && (
-          <div className="h-full bg-white border-4 border-black">
+          <div className="h-full bg-white">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
@@ -776,7 +776,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             {/* Top row: 2 vertical images */}
             <div className="flex gap-3 flex-[2]">
               {/* Image 4 */}
-              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl overflow-hidden rounded-lg">
+              <div className="flex-1 bg-white  overflow-hidden rounded-lg">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                   <div
                     className="absolute inset-0 cursor-pointer z-10"
@@ -797,7 +797,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               </div>
 
               {/* Image 5 */}
-              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl overflow-hidden rounded-lg">
+              <div className="flex-1 bg-white  overflow-hidden rounded-lg">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                   <div
                     className="absolute inset-0 cursor-pointer z-10"
@@ -819,7 +819,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Bottom: 1 horizontal image with caption */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden rounded-lg">
+            <div className="relative flex-[2] overflow-hidden rounded-lg">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -856,7 +856,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 5 && (
           <div className="h-full flex flex-col gap-3">
             {/* Image 7 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+            <div className="relative flex-[2] overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -889,7 +889,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Image 8 - Full width */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+            <div className="relative flex-[2]  overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer"
@@ -912,7 +912,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         )}
 
         {pageIndex === 6 && (
-          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3 overflow-hidden">
+          <div className="h-full relative  overflow-hidden">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
@@ -948,7 +948,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 7 && (
           <div className="h-full flex flex-col gap-3">
             {/* Image 10 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+            <div className="relative flex-[2]  overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -980,7 +980,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Image 11 - Full width */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+            <div className="relative flex-[2] overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer"
@@ -1005,7 +1005,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 8 && (
           <div className="h-full flex flex-col gap-3">
             {/* Image 12 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+            <div className="relative flex-[2]  overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1038,7 +1038,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
 
             {/* Bottom row: 2 images side by side */}
             <div className="flex gap-3 flex-[2]">
-              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+              <div className="flex-1 bg-white  overflow-hidden">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                   <div
                     className="absolute inset-0 cursor-pointer"
@@ -1057,7 +1057,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
                   )}
                 </div>
               </div>
-              <div className="flex-1 bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+              <div className="flex-1 bg-white  overflow-hidden">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                   <div
                     className="absolute inset-0 cursor-pointer"
@@ -1081,7 +1081,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         )}
 
         {pageIndex === 9 && (
-          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3 overflow-hidden">
+          <div className="h-full relative  overflow-hidden">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
@@ -1116,7 +1116,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 10 && (
           <div className="h-full flex flex-col gap-3">
             {/* Image 16 with caption bottom-left */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+            <div className="relative flex-[2]  overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1148,7 +1148,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Image 17 - Full width */}
-            <div className="relative flex-[2] bg-white p-3 border-8 border-black shadow-2xl overflow-hidden">
+            <div className="relative flex-[2] overflow-hidden">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer"
@@ -1171,7 +1171,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         )}
 
         {pageIndex === 11 && (
-          <div className="h-full relative bg-white border-8 border-black shadow-2xl p-3 overflow-hidden">
+          <div className="h-full relative  overflow-hidden">
             <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
               <div
                 className="absolute inset-0 cursor-pointer z-10"

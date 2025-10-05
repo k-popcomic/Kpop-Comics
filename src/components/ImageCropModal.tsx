@@ -21,15 +21,11 @@ export default function ImageCropModal({
   const [step, setStep] = useState<'upload' | 'crop' | 'saving'>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
-  const [cropPosition, setCropPosition] = useState({ x: 50, y: 50 });
-  const [cropSize, setCropSize] = useState({ width: 60, height: 40 });
   const [isDragging, setIsDragging] = useState(false);
-  const [isDraggingCrop, setIsDraggingCrop] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const imageRef = useRef<HTMLImageElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cropRef = useRef<HTMLDivElement>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -64,44 +60,7 @@ export default function ImageCropModal({
     }
   };
 
-  const handleCropMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDraggingCrop(true);
-  };
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDraggingCrop || !cropRef.current) return;
-
-    const rect = cropRef.current.parentElement?.getBoundingClientRect();
-    if (!rect) return;
-
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-    setCropPosition({
-      x: Math.max(cropSize.width / 2, Math.min(100 - cropSize.width / 2, x)),
-      y: Math.max(cropSize.height / 2, Math.min(100 - cropSize.height / 2, y))
-    });
-  }, [isDraggingCrop, cropSize]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDraggingCrop(false);
-  }, []);
-
-  React.useEffect(() => {
-    if (isDraggingCrop) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDraggingCrop, handleMouseMove, handleMouseUp]);
-
   const handleReset = () => {
-    setCropPosition({ x: 50, y: 50 });
-    setCropSize({ width: 60, height: 40 });
     setZoom(1);
     setRotation(0);
   };
@@ -122,36 +81,27 @@ export default function ImageCropModal({
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Calculate crop area in pixels
-        const cropX = (cropPosition.x - cropSize.width / 2) / 100 * imageElement.naturalWidth;
-        const cropY = (cropPosition.y - cropSize.height / 2) / 100 * imageElement.naturalHeight;
-        const cropWidth = (cropSize.width / 100) * imageElement.naturalWidth;
-        const cropHeight = (cropSize.height / 100) * imageElement.naturalHeight;
+        const width = imageElement.naturalWidth;
+        const height = imageElement.naturalHeight;
 
-        canvas.width = cropWidth;
-        canvas.height = cropHeight;
+        canvas.width = width;
+        canvas.height = height;
 
-        // Apply rotation if needed
-        if (rotation !== 0) {
-          ctx.translate(cropWidth / 2, cropHeight / 2);
-          ctx.rotate((rotation * Math.PI) / 180);
-          ctx.translate(-cropWidth / 2, -cropHeight / 2);
-        }
+        ctx.translate(width / 2, height / 2);
+        ctx.rotate((rotation * Math.PI) / 180);
+        ctx.scale(zoom, zoom);
+        ctx.translate(-width / 2, -height / 2);
 
-        ctx.drawImage(
-          imageElement,
-          cropX, cropY, cropWidth, cropHeight,
-          0, 0, cropWidth, cropHeight
-        );
+        ctx.drawImage(imageElement, 0, 0, width, height);
 
         canvas.toBlob((blob) => {
           if (blob) {
             onCropComplete(blob, pageIndex, panelId);
             handleClose();
           }
-        }, 'image/jpeg', 0.9);
+        }, 'image/jpeg', 0.95);
       } catch (error) {
-        console.error('Error cropping image:', error);
+        console.error('Error processing image:', error);
         handleClose();
       }
     }, 1500);
@@ -161,8 +111,6 @@ export default function ImageCropModal({
     setStep('upload');
     setSelectedFile(null);
     setPreviewUrl('');
-    setCropPosition({ x: 50, y: 50 });
-    setCropSize({ width: 60, height: 40 });
     setZoom(1);
     setRotation(0);
     onClose();
@@ -213,74 +161,36 @@ export default function ImageCropModal({
         {/* Crop Step */}
         {step === 'crop' && (
           <div className="p-6">
-            {/* Image with Grid Overlay */}
-            <div className="relative mb-6 max-h-96 overflow-hidden bg-gray-100 rounded-lg">
+            {/* Image with Letterbox Effect */}
+            <div className="relative mb-6 h-[60vh] max-h-[500px] bg-gray-600 flex items-center justify-center overflow-hidden">
               <img
                 ref={imageRef}
                 src={previewUrl}
                 alt="Crop preview"
-                className="w-full h-full object-contain mx-auto block"
+                className="max-w-full max-h-full object-contain"
                 style={{
                   transform: `scale(${zoom}) rotate(${rotation}deg)`,
                   transformOrigin: 'center'
                 }}
               />
-              
-              {/* Grid Overlay */}
-              <div className="absolute inset-0 pointer-events-none">
-                {/* Vertical lines */}
-                <div className="absolute left-1/3 top-0 bottom-0 w-0.5 bg-blue-400 opacity-70"></div>
-                <div className="absolute left-2/3 top-0 bottom-0 w-0.5 bg-blue-400 opacity-70"></div>
-                {/* Horizontal lines */}
-                <div className="absolute top-1/3 left-0 right-0 h-0.5 bg-blue-400 opacity-70"></div>
-                <div className="absolute top-2/3 left-0 right-0 h-0.5 bg-blue-400 opacity-70"></div>
-              </div>
-              
-              {/* Crop overlay */}
-              <div className="absolute inset-0">
-                {/* Dark overlay */}
-                <div className="absolute inset-0 bg-black/50"></div>
-                
-                {/* Rectangular crop area */}
-                <div 
-                  ref={cropRef}
-                  className="absolute border-2 border-blue-500 cursor-move bg-transparent"
-                  style={{ 
-                    left: `${cropPosition.x - cropSize.width / 2}%`,
-                    top: `${cropPosition.y - cropSize.height / 2}%`,
-                    width: `${cropSize.width}%`,
-                    height: `${cropSize.height}%`,
-                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
-                  }}
-                  onMouseDown={handleCropMouseDown}
-                >
-                  {/* Corner handles */}
-                  <div className="absolute -top-1 -left-1 w-3 h-3 bg-blue-500 border border-white"></div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 border border-white"></div>
-                  <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-blue-500 border border-white"></div>
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 border border-white"></div>
-                </div>
-              </div>
             </div>
 
             {/* Controls Row */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4 mb-4">
               {/* Reset Button */}
               <button
                 onClick={handleReset}
-                className="flex items-center justify-center px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="flex items-center justify-center px-8 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex-1"
               >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset
+                <RotateCcw className="w-5 h-5" />
               </button>
-              
+
               {/* Rotate Button */}
               <button
                 onClick={handleRotate}
-                className="flex items-center justify-center px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="flex items-center justify-center px-8 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex-1"
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Rotate
+                <RefreshCw className="w-5 h-5" />
               </button>
             </div>
 
@@ -293,30 +203,26 @@ export default function ImageCropModal({
                 step="0.1"
                 value={zoom}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((zoom - 0.5) / 2.5) * 100}%, #cbd5e1 ${((zoom - 0.5) / 2.5) * 100}%, #cbd5e1 100%)`
-                }}
+                className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer slider-thumb"
               />
             </div>
 
             {/* File info */}
-            <div className="flex items-center mb-4">
-              <div className="w-3 h-3 bg-blue-600 rounded-full mr-2"></div>
-              <span className="text-sm text-gray-600">{selectedFile?.name || 'image.jpg'}</span>
+            <div className="mb-6">
+              <span className="text-sm text-gray-700">{selectedFile?.name || 'image.jpg'}</span>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <button
                 onClick={() => setStep('upload')}
-                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="px-8 py-3 bg-blue-800 text-white rounded hover:bg-blue-900 transition-colors"
               >
                 Change image
               </button>
-              
+
               <button
                 onClick={handleSaveImage}
-                className="px-8 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-500 transition-colors font-medium"
+                className="px-10 py-3 bg-yellow-400 text-black rounded hover:bg-yellow-500 transition-colors font-semibold"
               >
                 Save image
               </button>
