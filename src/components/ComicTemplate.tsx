@@ -63,73 +63,72 @@ const COMIC_LAYOUTS: ComicPage[] = [
       { id: 'image4', type: 'image', content: '', placeholder: '', style: 'top-left' },
       { id: 'image5', type: 'image', content: '', placeholder: '', style: 'top-right' },
       { id: 'image6', type: 'image', content: '', placeholder: '', style: 'bottom-full' },
-      { id: 'caption6', type: 'text', content: '', placeholder: 'caption', style: 'caption-bottom-left' },
+      { id: 'caption6', type: 'text', content: '', placeholder: 'caption', style: 'caption-bottom-left' }
+    ]
+  },
+
+ {
+    id: 'page4',
+    layout: 'single',
+    panels: [
       { id: 'image7', type: 'image', content: '', placeholder: '', style: 'right-full' },
       { id: 'caption7', type: 'text', content: '', placeholder: 'caption', style: 'caption-top-left' },
       { id: 'image8', type: 'image', content: '', placeholder: '', style: 'right-bottom' }
     ]
   },
-  {
-    id: 'page4',
-    layout: 'single',
-    panels: [
-      { id: 'image9', type: 'image', content: '', placeholder: '', style: 'top-full' },
-      { id: 'caption9', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' },
-      { id: 'image10', type: 'image', content: '', placeholder: '', style: 'bottom-full' }
-    ]
-  },
+
   {
     id: 'page5',
     layout: 'single',
     panels: [
-      { id: 'image11', type: 'image', content: '', placeholder: '', style: 'full-centered' },
-      { id: 'caption11', type: 'text', content: '', placeholder: 'caption', style: 'caption-right' }
+      { id: 'image9', type: 'image', content: '', placeholder: '', style: 'top-full' },
+      { id: 'caption9', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' }
     ]
   },
   {
     id: 'page6',
     layout: 'single',
     panels: [
-      { id: 'image12', type: 'image', content: '', placeholder: '', style: 'top-full' },
-      { id: 'caption12', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' },
-      { id: 'image13', type: 'image', content: '', placeholder: '', style: 'bottom-full' }
+      { id: 'image10', type: 'image', content: '', placeholder: '', style: 'bottom-full' },
+      { id: 'caption10', type: 'text', content: '', placeholder: 'caption', style: 'caption-right' },
+      { id: 'image11', type: 'image', content: '', placeholder: '', style: 'full-centered' }
     ]
   },
   {
     id: 'page7',
     layout: 'single',
     panels: [
-      { id: 'image14', type: 'image', content: '', placeholder: '', style: 'top-full' },
-      { id: 'caption14', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' },
-      { id: 'image15', type: 'image', content: '', placeholder: '', style: 'bottom-left' },
-      { id: 'image16', type: 'image', content: '', placeholder: '', style: 'bottom-right' }
+      { id: 'image12', type: 'image', content: '', placeholder: '', style: 'top-full' },
+      { id: 'caption12', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' },
+      { id: 'image13', type: 'image', content: '', placeholder: '', style: 'bottom-full' },
+      { id: 'image14', type: 'image', content: '', placeholder: '', style: 'top-full' }
     ]
   },
   {
     id: 'page8',
     layout: 'single',
     panels: [
-      { id: 'image17', type: 'image', content: '', placeholder: '', style: 'full-centered' },
-      { id: 'caption17', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' }
+      { id: 'caption15', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' },
+      { id: 'image15', type: 'image', content: '', placeholder: '', style: 'bottom-left' }
     ]
   },
   {
     id: 'page9',
     layout: 'single',
     panels: [
-      { id: 'image18', type: 'image', content: '', placeholder: '', style: 'top-full' },
-      { id: 'caption18', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' },
-      { id: 'image19', type: 'image', content: '', placeholder: '', style: 'bottom-full' }
+      { id: 'image16', type: 'image', content: '', placeholder: '', style: 'bottom-right' },
+      { id: 'image17', type: 'image', content: '', placeholder: '', style: 'full-centered' },
+      { id: 'caption16', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' }
     ]
   },
   {
     id: 'page10',
     layout: 'single',
     panels: [
-      { id: 'image20', type: 'image', content: '', placeholder: '', style: 'full-centered' },
-      { id: 'caption20', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' }
+      { id: 'image18', type: 'image', content: '', placeholder: '', style: 'top-full' },
+      { id: 'caption18', type: 'text', content: '', placeholder: 'caption', style: 'caption-left' }
     ]
-  },
+  }
 ];
 
 export default function ComicTemplate() {
