@@ -25,7 +25,7 @@ const COMIC_LAYOUTS: ComicPage[] = [
     id: 'cover',
     layout: 'single',
     panels: [
-      { id: 'title', type: 'text', content: 'Draft Comic', placeholder: 'Draft Comic', style: 'title' },
+      { id: 'title', type: 'text', content: '', placeholder: 'title', style: 'title' },
       { id: 'subtitle', type: 'text', content: '', placeholder: 'Add a subtitle', style: 'subtitle' },
       { id: 'date', type: 'date', content: '1\nSep', placeholder: '1\nSep', style: 'date' },
       { id: 'coverImage', type: 'image', content: '', placeholder: 'Click to add image', style: 'cover-image' },
@@ -303,7 +303,7 @@ export default function ComicTemplate() {
 
       const draftData = {
         customer_id: customerId!,
-        title: title || 'Draft Comic',
+        title: title || '',
         description: description || '',
         date: new Date().toISOString().split('T')[0],
         images: images,
@@ -635,8 +635,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             {/* Title */}
             <input
               type="text"
-              placeholder="Draft Comic"
-              value={page.panels.find(p => p.id === 'title')?.content || 'Draft Comic'}
+              placeholder="title"
+              value={page.panels.find(p => p.id === 'title')?.content || ''}
               className="w-3/4 bg-yellow-400 text-black p-3 rounded font-bold text-center mb-2 border-0 focus:ring-2 focus:ring-yellow-500 text-xl"
               onChange={(e) => onTextChange(pageIndex, 'title', e.target.value)}
             />
