@@ -216,6 +216,23 @@ export default function AdminDashboard() {
     );
   }
 
+  const handleDeleteCustomer = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setCustomers(prev => prev.filter(customer => customer.id !== id));
+      alert('Customer deleted successfully');
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      alert('Error deleting customer');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <DashboardHeader onLogout={handleLogout} />
@@ -233,6 +250,7 @@ export default function AdminDashboard() {
           submissions={submissions}
           onCreateCustomer={() => setShowCreateCustomer(true)}
           onCopyLink={copyToClipboard}
+          onDeleteCustomer={handleDeleteCustomer}
         />
 
         <SubmissionsFilters

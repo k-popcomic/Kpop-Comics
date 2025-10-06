@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Copy, Mail } from 'lucide-react';
+import { Plus, Copy, Mail, Trash2 } from 'lucide-react';
 import { ComicSubmission } from '../../types';
 
 interface CustomerManagementSectionProps {
@@ -7,13 +7,15 @@ interface CustomerManagementSectionProps {
   submissions: ComicSubmission[];
   onCreateCustomer: () => void;
   onCopyLink: (link: string) => void;
+  onDeleteCustomer: (id: string) => void;
 }
 
 export default function CustomerManagementSection({
   customers,
   submissions,
   onCreateCustomer,
-  onCopyLink
+  onCopyLink,
+  onDeleteCustomer
 }: CustomerManagementSectionProps) {
   const getUploadLink = (customerId: string) => {
     return `${window.location.origin}/${customerId}`;
@@ -48,23 +50,41 @@ export default function CustomerManagementSection({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Delete
+              </th>
             </tr>
           </thead>
+
           <tbody className="bg-white divide-y divide-gray-200">
             {customers.map((customer) => {
-              const hasSubmission = submissions.find(s => s.customer_id === customer.unique_code);
+              const hasSubmission = submissions.find(
+                (s) => s.customer_id === customer.unique_code
+              );
+
               return (
                 <tr key={customer.id} className="hover:bg-gray-50">
+                  {/* Customer Info */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{customer.name || 'No name'}</div>
-                      <div className="text-sm text-gray-500">{customer.email || 'No email'}</div>
-                      <div className="text-xs text-gray-400 font-mono">ID: {customer.unique_code}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {customer.name || 'No name'}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {customer.email || 'No email'}
+                      </div>
+                      <div className="text-xs text-gray-400 font-mono">
+                        ID: {customer.unique_code}
+                      </div>
                     </div>
                   </td>
+
+                  {/* Upload Link */}
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
-                      <code className="text-xs bg-gray-100 px-2 py-1 rounded">{getUploadLink(customer.unique_code)}</code>
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                        {getUploadLink(customer.unique_code)}
+                      </code>
                       <button
                         onClick={() => onCopyLink(getUploadLink(customer.unique_code))}
                         className="text-blue-600 hover:text-blue-800"
@@ -73,21 +93,57 @@ export default function CustomerManagementSection({
                       </button>
                     </div>
                   </td>
+
+                  {/* Status */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      hasSubmission ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        hasSubmission
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
                       {hasSubmission ? 'Submitted' : 'Pending'}
                     </span>
                   </td>
+
+                  {/* Actions */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => window.open(`mailto:${customer.email}?subject=Your Comic Upload Link&body=Hi ${customer.name},%0D%0A%0D%0APlease use this link to upload your comic images:%0D%0A${getUploadLink(customer.unique_code)}%0D%0A%0D%0AThank you!`, '_blank')}
+                      onClick={() =>
+                        window.open(
+                          `mailto:${customer.email}?subject=Your Comic Upload Link&body=Hi ${customer.name},%0D%0A%0D%0APlease use this link to upload your comic images:%0D%0A${getUploadLink(
+                            customer.unique_code
+                          )}%0D%0A%0D%0AThank you!`,
+                          '_blank'
+                        )
+                      }
                       className="text-blue-600 hover:text-blue-800 inline-flex items-center"
                       disabled={!customer.email}
                     >
                       <Mail className="w-4 h-4 mr-1" />
-                      Email Link
+                      Email
+                    </button>
+                  </td>
+
+                  {/* Delete */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => {
+                        if (
+                          confirm(
+                            `Are you sure you want to delete ${
+                              customer.name || 'this customer'
+                            }?`
+                          )
+                        ) {
+                          onDeleteCustomer(customer.id);
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800 inline-flex items-center"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Delete
                     </button>
                   </td>
                 </tr>
