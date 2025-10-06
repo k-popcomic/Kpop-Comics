@@ -100,38 +100,51 @@ export default function SubmissionDetailsModal({
                   Download All
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {submission.images.map((image, index) => (
-                  <div key={image.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <div className="relative group mb-3">
-                      <img
-                        src={image.url}
-                        alt={`Image ${index + 1}`}
-                        className="w-full h-48 object-cover rounded-lg shadow-sm"
-                      />
-                      <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-semibold">
-                        #{index + 1}
-                      </div>
-                      <button
-                        onClick={() => onDeleteImage(submission.id, image.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    {image.caption && (
-                      <div>
-                        <label className="text-xs font-medium text-gray-600">Caption</label>
-                        <p className="text-sm text-gray-900 mt-1">{image.caption}</p>
-                      </div>
-                    )}
-                    <div className="mt-2 flex justify-between text-xs text-gray-500">
-                      <span>{image.file_name}</span>
-                      <span>{(image.file_size / 1024 / 1024).toFixed(1)} MB</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {submission.images.map((image, index) => (
+    <div key={image.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+      {/* Image Container */}
+      <div className="relative group mb-3">
+        <a href={image.url} target="_blank" rel="noopener noreferrer">
+          <img
+            src={image.url}
+            alt={`Image ${index + 1}`}
+            className="w-full h-48 object-cover rounded-lg shadow-sm cursor-pointer hover:opacity-90 transition"
+          />
+        </a>
+
+        {/* Index badge */}
+        <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-semibold">
+          #{index + 1}
+        </div>
+
+        {/* Delete button */}
+        <button
+          onClick={() => onDeleteImage(submission.id, image.id)}
+          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Caption - moved below the image container */}
+      {image.caption && (
+        <div className="mt-1">
+          <label className="text-xs font-medium text-gray-600 block">Caption</label>
+          <p className="text-sm text-gray-900 mt-1 break-words">{image.caption}</p>
+        </div>
+      )}
+
+      {/* File info */}
+      <div className="mt-2 flex justify-between text-xs text-gray-500">
+        <span>{image.file_name}</span>
+        <span>{(image.file_size / 1024 / 1024).toFixed(1)} MB</span>
+      </div>
+    </div>
+  ))}
+</div>
+
+
             </div>
           </div>
         </div>
