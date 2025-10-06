@@ -475,7 +475,7 @@ export default function ComicTemplate() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex flex-col items-center justify-center text-white">
         <div className="mb-8">
-          <div className="w-16 h-16 bg-white/20 rounded-lg flex items-center justify-center mb-4">
+          <div className="w-16 h-16 bg-white/20  flex items-center justify-center mb-4">
             <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
             </svg>
@@ -489,7 +489,7 @@ export default function ComicTemplate() {
   if (!customerExists) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+        <div className="bg-white  shadow-lg p-8 max-w-md w-full text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Invalid Link</h2>
           <p className="text-gray-600">This upload link is not valid or has expired.</p>
         </div>
@@ -504,7 +504,7 @@ export default function ComicTemplate() {
           <h1 className="text-lg md:text-xl font-bold mb-4">
             Welcome to your comic template! Please follow the guidelines below so we have everything we need to make your comic look great! If you have any questions just reply to my email and I'll get back to you
           </h1>
-          <div className="bg-white/10 rounded-lg p-3 md:p-4 mb-4">
+          <div className="bg-white/10  p-3 md:p-4 mb-4">
             <h2 className="text-base md:text-lg font-bold mb-3">Guidelines</h2>
             <ol className="space-y-2 text-xs md:text-sm">
               <li>
@@ -533,7 +533,7 @@ export default function ComicTemplate() {
 
           <button
             onClick={() => setShowWelcome(false)}
-            className="bg-yellow-400 text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-semibold text-sm md:text-base hover:bg-yellow-300 transition-colors"
+            className="bg-yellow-400 text-black px-6 md:px-8 py-2 md:py-3  font-semibold text-sm md:text-base hover:bg-yellow-300 transition-colors"
           >
             Start uploading!
           </button>
@@ -545,91 +545,102 @@ export default function ComicTemplate() {
   const currentPageData = pages[currentPage];
 
   return (
-    <div className="flex items-center justify-center overflow-hidden relative">
-      <div className="w-full h-full flex flex-col items-center justify-center">
-        {/* Navigation */}
-        <div className="flex items-center justify-center mb-4 md:mb-6 relative">
-          <button
-            onClick={() => {
-              if (currentPage === 0) return;
-              setCurrentPage(Math.max(0, currentPage - 2));
-            }}
-            disabled={currentPage === 0}
-            className="fixed left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors z-10"
-          >
-            <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
+  <div className="flex items-center justify-center overflow-hidden relative">
+  <div className="w-full h-full flex flex-col items-center justify-center">
+    {/* Navigation */}
+    <div className="flex items-center justify-center mb-4 md:mb-6 relative">
+      {/* Previous Button */}
+      <button
+        onClick={() => {
+          const step = window.innerWidth < 768 ? 1 : 2; // 👈 1 page on mobile, 2 on desktop
+          if (currentPage === 0) return;
+          setCurrentPage(Math.max(0, currentPage - step));
+        }}
+        disabled={currentPage === 0}
+        className="fixed left-3 md:left-4 top-auto bottom-0 sm:top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors z-10"
+      >
+        <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+      </button>
 
-          {/* <div className="text-center">
-            <p className="text-sm md:text-base text-gray-600">
-              Pages {currentPage + 1}-{Math.min(currentPage + 2, pages.length)} of {pages.length}
-            </p>
-          </div> */}
+      {/* Next Button */}
+      <button
+        onClick={() => {
+          const step = window.innerWidth < 768 ? 1 : 2; // 👈 1 page on mobile, 2 on desktop
+          const maxPage = pages.length - step;
+          setCurrentPage(Math.min(maxPage, currentPage + step));
+        }}
+        disabled={
+          window.innerWidth < 768
+            ? currentPage >= pages.length - 1
+            : currentPage >= pages.length - 2
+        }
+        className="fixed right-3 md:right-4 top-auto bottom-0 sm:top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors z-10"
+      >
+        <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+      </button>
+    </div>
 
-          <button
-            onClick={() => setCurrentPage(Math.min(pages.length - 2, currentPage + 2))}
-            disabled={currentPage >= pages.length - 2}
-            className="fixed right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors z-10"
-          >
-            <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
-        </div>
+    {/* Comic Pages - Responsive (1 page on mobile, 2 pages on desktop) */}
+    <div className="flex justify-center gap-4 md:gap-8 px-4 md:px-16">
+      {/* Left Page — always visible */}
+      <ComicPageRenderer
+        page={pages[currentPage]}
+        pageIndex={currentPage}
+        pages={pages}
+        onImageClick={handleImageClick}
+        onTextChange={handleTextChange}
+        onDateChange={handleDateChange}
+        layout={pages[currentPage].layout}
+        isLeftPage
+      />
 
-        {/* Comic Pages - Always show 2 pages side by side */}
-        <div className="flex justify-center gap-4 md:gap-8 px-4 md:px-16">
+      {/* Right Page — show only on md and larger screens */}
+      {currentPage + 1 < pages.length && (
+        <div className="hidden md:block">
           <ComicPageRenderer
-            page={pages[currentPage]}
-            pageIndex={currentPage}
+            page={pages[currentPage + 1]}
+            pageIndex={currentPage + 1}
             pages={pages}
             onImageClick={handleImageClick}
             onTextChange={handleTextChange}
             onDateChange={handleDateChange}
-            layout={pages[currentPage].layout}
-            isLeftPage
+            layout={pages[currentPage + 1].layout}
+            isRightPage
           />
-          {currentPage + 1 < pages.length && (
-            <ComicPageRenderer
-              page={pages[currentPage + 1]}
-              pageIndex={currentPage + 1}
-              pages={pages}
-              onImageClick={handleImageClick}
-              onTextChange={handleTextChange}
-              onDateChange={handleDateChange}
-              layout={pages[currentPage + 1].layout}
-              isRightPage
-            />
-          )}
         </div>
-
-        {/* Submit Button */}
-        {currentPage >= pages.length - 2 && (
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-            >
-              {submitting ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              ) : (
-                <Send className="w-5 h-5" />
-              )}
-              <span>{submitting ? 'Submitting...' : 'Submit Comic'}</span>
-            </button>
-          </div>
-        )}
-
-        {/* Image Crop Modal */}
-        <ImageCropModal
-          isOpen={cropModal.isOpen}
-          onClose={() => setCropModal({ ...cropModal, isOpen: false })}
-          onCropComplete={handleCropComplete}
-          fileName={cropModal.fileName}
-          pageIndex={cropModal.pageIndex}
-          panelId={cropModal.panelId}
-        />
-      </div>
+      )}
     </div>
+
+    {/* Submit Button */}
+    {currentPage >= pages.length - 2 && (
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="bg-green-600 text-white px-8 py-3  font-semibold text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+        >
+          {submitting ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          ) : (
+            <Send className="w-5 h-5" />
+          )}
+          <span>{submitting ? "Submitting..." : "Submit Comic"}</span>
+        </button>
+      </div>
+    )}
+
+    {/* Image Crop Modal */}
+    <ImageCropModal
+      isOpen={cropModal.isOpen}
+      onClose={() => setCropModal({ ...cropModal, isOpen: false })}
+      onCropComplete={handleCropComplete}
+      fileName={cropModal.fileName}
+      pageIndex={cropModal.pageIndex}
+      panelId={cropModal.panelId}
+    />
+  </div>
+</div>
+
   );
 }
 
@@ -649,15 +660,16 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
   const [editingDate, setEditingDate] = useState(false);
 
   return (
-    <div
-      className="bg-white border-4 border-black shadow-2xl"
-      style={{
-        width: "403.491px",
-        height: "85vh",
-        minHeight: "650px",
-        maxHeight: "690px",
-      }}
-    >
+   <div
+  className="
+    bg-white border-4 border-black 
+    w-[90vw] sm:w-[403.491px] 
+    h-[80vh] sm:h-[85vh] 
+    min-h-[500px] sm:min-h-[650px] 
+    max-h-[700px] 
+    mx-auto
+  "
+>
       <div className="h-full p-3 relative">
         {/* Cover Page */}
         {pageIndex === 0 && (
@@ -927,7 +939,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             {/* Top row: 2 vertical images */}
             <div className="flex gap-3 flex-[2]">
               {/* Image 4 */}
-              <div className="flex-1 bg-white overflow-hidden rounded-lg border border-gray-200 shadow-inner">
+              <div className="flex-1 bg-white overflow-hidden  border border-gray-200">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                   <div
                     className="absolute inset-0 cursor-pointer z-10"
@@ -948,7 +960,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               </div>
 
               {/* Image 5 */}
-              <div className="flex-1 bg-white overflow-hidden rounded-lg border border-gray-200 shadow-inner">
+              <div className="flex-1 bg-white overflow-hidden  border border-gray-200">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                   <div
                     className="absolute inset-0 cursor-pointer z-10"
@@ -970,7 +982,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Bottom: 1 horizontal image with caption */}
-            <div className="relative flex-[2] overflow-hidden rounded-lg border border-gray-200 shadow-inner">
+            <div className="relative flex-[2] overflow-hidden  border border-gray-200">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1008,7 +1020,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 5 && (
           <div className="h-full  flex flex-col gap-3 overflow-hidden">
             {/* Image 7 with caption bottom-left */}
-            <div className="relative flex-[2] overflow-hidden rounded-lg border border-gray-200 shadow-inner">
+            <div className="relative flex-[2] overflow-hidden  border border-gray-200">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1041,7 +1053,7 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Image 8 - Full width */}
-            <div className="relative flex-[2] overflow-hidden rounded-lg border border-gray-200 shadow-inner">
+            <div className="relative flex-[2] overflow-hidden  border border-gray-200">
               <div className="w-full h-full bg-gray-300 flex items-center justify-center relative">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
@@ -1064,8 +1076,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         )}
 
         {pageIndex === 6 && (
-          <div className="h-full relative overflow-hidden rounded-lg">
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden  shadow-2xl">
+          <div className="h-full relative overflow-hidden">
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
                 onClick={() => onImageClick(pageIndex, "image9")}
@@ -1100,8 +1112,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 7 && (
           <div className="h-full flex flex-col gap-3">
             {/* Image 10 with caption bottom-left */}
-            <div className="relative flex-[2] overflow-hidden  shadow-2xl">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+            <div className="relative flex-[2] overflow-hidden">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image10")}
@@ -1132,8 +1144,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Image 11 - Full width */}
-            <div className="relative flex-[2] overflow-hidden  shadow-2xl">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+            <div className="relative flex-[2] overflow-hidden">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image11")}
@@ -1157,8 +1169,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 8 && (
           <div className="h-full flex flex-col gap-3">
             {/* Top: Image 12 with caption bottom-left */}
-            <div className="relative flex-[2] overflow-hidden  shadow-2xl">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+            <div className="relative flex-[2] overflow-hidden">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image12")}
@@ -1192,8 +1204,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             {/* Bottom: 2 images side by side */}
             <div className="flex gap-3 flex-[2]">
               {/* Image 13 */}
-              <div className="flex-1 bg-white overflow-hidden  shadow-2xl">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+              <div className="flex-1 bg-white overflow-hidden">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
                   <div
                     className="absolute inset-0 cursor-pointer z-10"
                     onClick={() => onImageClick(pageIndex, "image13")}
@@ -1213,8 +1225,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
               </div>
 
               {/* Image 14 */}
-              <div className="flex-1 bg-white overflow-hidden  shadow-2xl">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+              <div className="flex-1 bg-white overflow-hidden">
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
                   <div
                     className="absolute inset-0 cursor-pointer z-10"
                     onClick={() => onImageClick(pageIndex, "image14")}
@@ -1237,8 +1249,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         )}
 
         {pageIndex === 9 && (
-          <div className="h-full relative overflow-hidden  shadow-2xl bg-white">
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+          <div className="h-full relative overflow-hidden bg-white">
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
                 onClick={() => onImageClick(pageIndex, "image15")}
@@ -1273,8 +1285,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
         {pageIndex === 10 && (
           <div className="h-full flex flex-col gap-3">
             {/* Top: Image 16 with caption bottom-left */}
-            <div className="relative flex-[2] overflow-hidden  bg-white shadow-2xl">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+            <div className="relative flex-[2] overflow-hidden  bg-white">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image16")}
@@ -1305,8 +1317,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
             </div>
 
             {/* Bottom: Image 17 full width */}
-            <div className="relative flex-[2] overflow-hidden  bg-white shadow-2xl">
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+            <div className="relative flex-[2] overflow-hidden  bg-white">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
                 <div
                   className="absolute inset-0 cursor-pointer z-10"
                   onClick={() => onImageClick(pageIndex, "image17")}
@@ -1327,8 +1339,8 @@ function ComicPageRenderer({ page, pageIndex, pages, onImageClick, onTextChange,
           </div>
         )}
         {pageIndex === 11 && (
-          <div className="h-full relative overflow-hidden  bg-white shadow-2xl">
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden rounded-md">
+          <div className="h-full relative overflow-hidden  bg-white">
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
               <div
                 className="absolute inset-0 cursor-pointer z-10"
                 onClick={() => onImageClick(pageIndex, "image18")}
