@@ -537,7 +537,7 @@ const handleSubmit = async () => {
                 <span className="font-semibold">6.</span> <span className="font-semibold">Only use images that are yours</span> or that you have permission to use. Photos are fine, but <span className="font-semibold">we're not allowed to print images that belong to Disney for example.</span>
               </li>
               <li>
-                <span className="font-semibold">7.</span> To <span className="font-semibold">submit your comic</span>, just tick the box at the end of the comic when you've uploaded all your images. This will lock your comic temporarily so <span className="font-semibold">we</span> can work from that version. Don\'t worry though, <span className="font-semibold">we</span> can always unlock it if you need to change anything!
+                <span className="font-semibold">7.</span> To <span className="font-semibold">submit your comic</span>, just tick the box at the end of the comic when you've uploaded all your images. This will lock your comic temporarily so <span className="font-semibold">we</span> can work from that version. Don't worry though, <span className="font-semibold">we</span> can always unlock it if you need to change anything!
               </li>
             </ol>
           </div>
