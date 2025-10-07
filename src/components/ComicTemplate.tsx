@@ -373,103 +373,114 @@ export default function ComicTemplate() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!confirm('Are you ready to submit your comic? This will lock it temporarily for processing.')) {
-      return;
+const handleSubmit = async () => {
+  if (!confirm('Are you ready to submit your comic? This will lock it temporarily for processing.')) {
+    return;
+  }
+
+  setSubmitting(true);
+  try {
+    const updatedPages = [...pages];
+
+    // Collect all upload promises first
+    const uploadPromises: Promise<{ url: string; pageIndex: number; panelIndex: number }>[] = [];
+
+    for (let pageIndex = 0; pageIndex < updatedPages.length; pageIndex++) {
+      for (let panelIndex = 0; panelIndex < updatedPages[pageIndex].panels.length; panelIndex++) {
+        const panel = updatedPages[pageIndex].panels[panelIndex];
+        if (panel.type === 'image' && panel.image instanceof File) {
+          // Start upload immediately but don’t await yet
+          const promise = uploadImage(panel.image, customerId!).then((url) => ({
+            url,
+            pageIndex,
+            panelIndex,
+          }));
+          uploadPromises.push(promise);
+        }
+      }
     }
 
-    setSubmitting(true);
-    try {
-      const updatedPages = [...pages];
-      for (let pageIndex = 0; pageIndex < updatedPages.length; pageIndex++) {
-        for (let panelIndex = 0; panelIndex < updatedPages[pageIndex].panels.length; panelIndex++) {
-          const panel = updatedPages[pageIndex].panels[panelIndex];
-          if (panel.type === 'image' && panel.image instanceof File) {
-            const imageUrl = await uploadImage(panel.image, customerId!);
-            panel.content = imageUrl;
-            panel.image = imageUrl;
-          }
-        }
-      }
+    // Wait for all uploads to finish in parallel
+    const uploadedResults = await Promise.all(uploadPromises);
 
-      const images: any[] = [];
-      let imageIndex = 0;
-      for (const page of updatedPages) {
-        for (const panel of page.panels) {
-          if (panel.type === 'image' && panel.content && panel.content !== '') {
-            const captionId = panel.id.replace('image', 'caption');
-            const captionPanel = page.panels.find(p => p.id === captionId);
-            images.push({
-              id: panel.id,
-              url: panel.content,
-              caption: captionPanel?.content || '',
-              order_index: imageIndex++,
-              file_name: `${panel.id}.jpg`,
-              file_size: 0
-            });
-          }
-        }
-      }
-
-      let title = '';
-      let subtitle = '';
-      let coverDate = '';
-      let coverCaption = '';
-      let messageText = '';
-
-      for (const page of updatedPages) {
-        for (const panel of page.panels) {
-          if (panel.type === 'text') {
-            if (panel.id === 'title') title = panel.content;
-            else if (panel.id === 'subtitle') subtitle = panel.content;
-            else if (panel.id === 'coverCaption') coverCaption = panel.content;
-            else if (panel.id === 'messageText') messageText = panel.content;
-          } else if (panel.type === 'date') {
-            coverDate = panel.content;
-          }
-        }
-      }
-
-      const submissionData = {
-        title: title || 'Comic Submission',
-        description: JSON.stringify({
-          subtitle,
-          coverCaption,
-          messageText,
-          coverDate
-        }),
-        date: coverDate || new Date().toISOString().split('T')[0],
-        images: images,
-        status: 'submitted' as const
-      };
-
-      if (existingSubmission) {
-        const { error } = await supabase
-          .from('submissions')
-          .update(submissionData)
-          .eq('id', existingSubmission.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('submissions')
-          .insert([{
-            customer_id: customerId!,
-            ...submissionData
-          }]);
-
-        if (error) throw error;
-      }
-
-      alert('Comic submitted successfully! Your comic is now locked temporarily for processing. Contact us if you need to make changes.');
-      navigate('/');
-    } catch (error) {
-      console.error('Error submitting comic:', error);
-      alert('Error submitting comic. Please try again.');
-    } finally {
-      setSubmitting(false);
+    // Apply uploaded URLs back into the pages
+    for (const { url, pageIndex, panelIndex } of uploadedResults) {
+      updatedPages[pageIndex].panels[panelIndex].content = url;
+      updatedPages[pageIndex].panels[panelIndex].image = url;
     }
-  };
+
+    // Now build the images array
+    const images: any[] = [];
+    let imageIndex = 0;
+
+    for (const page of updatedPages) {
+      for (const panel of page.panels) {
+        if (panel.type === 'image' && panel.content) {
+          const captionId = panel.id.replace('image', 'caption');
+          const captionPanel = page.panels.find((p) => p.id === captionId);
+          images.push({
+            id: panel.id,
+            url: panel.content,
+            caption: captionPanel?.content || '',
+            order_index: imageIndex++,
+            file_name: `${panel.id}.jpg`,
+            file_size: 0,
+          });
+        }
+      }
+    }
+
+    // Extract text data
+    let title = '';
+    let subtitle = '';
+    let coverDate = '';
+    let coverCaption = '';
+    let messageText = '';
+
+    for (const page of updatedPages) {
+      for (const panel of page.panels) {
+        if (panel.type === 'text') {
+          if (panel.id === 'title') title = panel.content;
+          else if (panel.id === 'subtitle') subtitle = panel.content;
+          else if (panel.id === 'coverCaption') coverCaption = panel.content;
+          else if (panel.id === 'messageText') messageText = panel.content;
+        } else if (panel.type === 'date') {
+          coverDate = panel.content;
+        }
+      }
+    }
+
+    const submissionData = {
+      title: title || 'Comic Submission',
+      description: JSON.stringify({ subtitle, coverCaption, messageText, coverDate }),
+      date: coverDate || new Date().toISOString().split('T')[0],
+      images,
+      status: 'submitted' as const,
+    };
+
+    if (existingSubmission) {
+      const { error } = await supabase
+        .from('submissions')
+        .update(submissionData)
+        .eq('id', existingSubmission.id);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from('submissions')
+        .insert([{ customer_id: customerId!, ...submissionData }]);
+      if (error) throw error;
+    }
+
+    alert('Comic submitted successfully! Your comic is now locked temporarily for processing. Contact us if you need to make changes.');
+    navigate('/');
+  } catch (error) {
+    console.error('Error submitting comic:', error);
+    alert('Error submitting comic. Please try again.');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   if (loading) {
     return (
@@ -545,102 +556,103 @@ export default function ComicTemplate() {
   const currentPageData = pages[currentPage];
 
   return (
-  <div className="flex items-center justify-center overflow-hidden relative">
-  <div className="w-full h-full flex flex-col items-center justify-center">
-    {/* Navigation */}
-    <div className="flex items-center justify-center mb-4 md:mb-6 relative">
-      {/* Previous Button */}
-      <button
-        onClick={() => {
-          const step = window.innerWidth < 768 ? 1 : 2; // 👈 1 page on mobile, 2 on desktop
-          if (currentPage === 0) return;
-          setCurrentPage(Math.max(0, currentPage - step));
-        }}
-        disabled={currentPage === 0}
-        className="fixed left-3 md:left-4 top-auto bottom-0 sm:top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors z-10"
-      >
-        <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
-      </button>
+    <div className="flex items-center justify-center overflow-hidden relative">
+      <div className="w-full h-full flex flex-col items-center justify-center">
+        {/* Navigation */}
+        <div className="flex items-center justify-center mb-4 md:mb-6 relative">
+          {/* Previous Button */}
+          <button
+            onClick={() => {
+              const step = window.innerWidth < 768 ? 1 : 2; // 👈 1 page on mobile, 2 on desktop
+              if (currentPage === 0) return;
+              setCurrentPage(Math.max(0, currentPage - step));
+            }}
+            disabled={currentPage === 0}
+            className="fixed left-3 md:left-4 top-auto bottom-0 sm:top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors z-10"
+          >
+            <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+          </button>
 
-      {/* Next Button */}
-      <button
-        onClick={() => {
-          const step = window.innerWidth < 768 ? 1 : 2; // 👈 1 page on mobile, 2 on desktop
-          const maxPage = pages.length - step;
-          setCurrentPage(Math.min(maxPage, currentPage + step));
-        }}
-        disabled={
-          window.innerWidth < 768
-            ? currentPage >= pages.length - 1
-            : currentPage >= pages.length - 2
-        }
-        className="fixed right-3 md:right-4 top-auto bottom-0 sm:top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors z-10"
-      >
-        <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
-      </button>
-    </div>
+          {/* Next Button */}
+          <button
+            onClick={() => {
+              const step = window.innerWidth < 768 ? 1 : 2; // 👈 1 page on mobile, 2 on desktop
+              const maxPage = pages.length - step;
+              setCurrentPage(Math.min(maxPage, currentPage + step));
+            }}
+            disabled={
+              window.innerWidth < 768
+                ? currentPage >= pages.length - 1
+                : currentPage >= pages.length - 2
+            }
+            className="fixed right-3 md:right-4 top-auto bottom-0 sm:top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors z-10"
+          >
+            <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+          </button>
+        </div>
 
-    {/* Comic Pages - Responsive (1 page on mobile, 2 pages on desktop) */}
-    <div className="flex justify-center gap-4 md:gap-8 px-4 md:px-16">
-      {/* Left Page — always visible */}
-      <ComicPageRenderer
-        page={pages[currentPage]}
-        pageIndex={currentPage}
-        pages={pages}
-        onImageClick={handleImageClick}
-        onTextChange={handleTextChange}
-        onDateChange={handleDateChange}
-        layout={pages[currentPage].layout}
-        isLeftPage
-      />
-
-      {/* Right Page — show only on md and larger screens */}
-      {currentPage + 1 < pages.length && (
-        <div className="hidden md:block">
+        {/* Comic Pages - Responsive (1 page on mobile, 2 pages on desktop) */}
+        <div className="flex justify-center gap-4 md:gap-8 px-4 md:px-16">
+          {/* Left Page — always visible */}
           <ComicPageRenderer
-            page={pages[currentPage + 1]}
-            pageIndex={currentPage + 1}
+            page={pages[currentPage]}
+            pageIndex={currentPage}
             pages={pages}
             onImageClick={handleImageClick}
             onTextChange={handleTextChange}
             onDateChange={handleDateChange}
-            layout={pages[currentPage + 1].layout}
-            isRightPage
+            layout={pages[currentPage].layout}
+            isLeftPage
           />
-        </div>
-      )}
-    </div>
 
-    {/* Submit Button */}
-    {currentPage >= pages.length - 2 && (
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="bg-green-600 text-white px-8 py-3  font-semibold text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-        >
-          {submitting ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-          ) : (
-            <Send className="w-5 h-5" />
+          {/* Right Page — show only on md and larger screens */}
+          {currentPage + 1 < pages.length && (
+            <div className="hidden md:block">
+              <ComicPageRenderer
+                page={pages[currentPage + 1]}
+                pageIndex={currentPage + 1}
+                pages={pages}
+                onImageClick={handleImageClick}
+                onTextChange={handleTextChange}
+                onDateChange={handleDateChange}
+                layout={pages[currentPage + 1].layout}
+                isRightPage
+              />
+            </div>
           )}
-          <span>{submitting ? "Submitting..." : "Submit Comic"}</span>
-        </button>
+        </div>
+
+        {/* Submit Button */}
+        {(window.innerWidth < 768
+          ? currentPage === pages.length - 1 // 👈 Only last page on mobile
+          : currentPage >= pages.length - 2) && ( // 👈 Last 2 pages on desktop
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="bg-green-600 text-white px-8 py-3 font-semibold text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            >
+              {submitting ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
+              <span>{submitting ? "Submitting..." : "Submit Comic"}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Image Crop Modal */}
+        <ImageCropModal
+          isOpen={cropModal.isOpen}
+          onClose={() => setCropModal({ ...cropModal, isOpen: false })}
+          onCropComplete={handleCropComplete}
+          fileName={cropModal.fileName}
+          pageIndex={cropModal.pageIndex}
+          panelId={cropModal.panelId}
+        />
       </div>
-    )}
-
-    {/* Image Crop Modal */}
-    <ImageCropModal
-      isOpen={cropModal.isOpen}
-      onClose={() => setCropModal({ ...cropModal, isOpen: false })}
-      onCropComplete={handleCropComplete}
-      fileName={cropModal.fileName}
-      pageIndex={cropModal.pageIndex}
-      panelId={cropModal.panelId}
-    />
-  </div>
-</div>
-
+    </div>
   );
 }
 
