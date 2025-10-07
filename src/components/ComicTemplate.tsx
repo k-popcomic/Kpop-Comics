@@ -624,8 +624,8 @@ const handleSubmit = async () => {
 
         {/* Submit Button */}
         {(window.innerWidth < 768
-          ? currentPage === pages.length - 1
-          : currentPage >= pages.length - 2) && (
+          ? currentPage === pages.length - 1 // 👈 Only last page on mobile
+          : currentPage >= pages.length - 2) && ( // 👈 Last 2 pages on desktop
           <div className="flex justify-center mt-6">
             <button
               onClick={handleSubmit}
