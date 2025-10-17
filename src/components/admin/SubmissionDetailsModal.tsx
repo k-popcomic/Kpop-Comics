@@ -128,12 +128,15 @@ export default function SubmissionDetailsModal({
       </div>
 
       {/* Caption - moved below the image container */}
-      {image.caption && (
-        <div className="mt-1">
-          <label className="text-xs font-medium text-gray-600 block">Caption</label>
-          <p className="text-sm text-gray-900 mt-1 break-words">{image.caption}</p>
-        </div>
-      )}
+     {image.caption && (
+  <div className="mt-1">
+    <label className="text-xs font-medium text-gray-600 block">Caption</label>
+    <p className="text-sm text-gray-900 mt-1 break-words">
+      {image.caption}
+    </p>
+  </div>
+)}
+
 
       {/* File info */}
       <div className="mt-2 flex justify-between text-xs text-gray-500">
